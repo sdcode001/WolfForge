@@ -1,4 +1,5 @@
 const http = require('http');
+const {Socket, Server} = require('socket.io');
 const express = require('express')
 const cors = require('cors')
 const { s3Manager }  =  require('./aws-s3-service');
@@ -7,6 +8,13 @@ const { s3Manager }  =  require('./aws-s3-service');
 const app = express();
 const server = http.createServer(app);
 const PORT = 5000;
+
+const io = new Server(server, {
+   cors: {
+      origin: "*",
+      methods: ['GET', 'POST']
+   }
+})
 
 app.use(cors());
 
@@ -26,6 +34,11 @@ app.get('/create', async (req, res) => {
    else{
     return res.status(404).json({message: 'missing parameters!'});
    } 
+})
+
+
+io.on('connection', async (socket) => {
+    
 })
 
 

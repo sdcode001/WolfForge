@@ -14,7 +14,7 @@ class FileManager {
             resolve()
            });
        });
-   }
+    }
 
    async writeFile(filepath, fileContent){
        return new Promise(async (resolve, reject) => {
@@ -29,7 +29,34 @@ class FileManager {
             }
           });
        });
-   }
+    }
+
+    async getDirectory(dirPath, basePath){
+        return new Promise(async (resolve, reject) => {
+            fs.readdir(dirPath, {withFileTypes: true}, (err, files) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(files.map(file => ({type: file.isDirectory ? 'directory' : 'file', name: file.name, path: `${basePath}/${file.name}`})));
+                }
+            })
+        });
+    }
+
+    async getFileContent(filePath){
+        return new Promise(async (resolve, reject) => {
+            fs.readFile(path, {encoding: 'utf8'}, (err, data) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(data);
+                }
+            })
+        })
+    }
+    
 
 }
 

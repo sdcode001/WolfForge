@@ -1,0 +1,41 @@
+<div class="dashboard-container">
+  
+    <main class="main-content">
+      <div class="content-header">
+        <h1>Create a new Project</h1>
+      </div>
+      <div class="content-form">
+        <label for="template">Template</label>
+        <select class="template" [(ngModel)]="selectedTemplate">
+          <option [value]="''" disabled>Select</option>
+          @for(item of templateData; track item.value){
+            <option [value]="item.value">{{item.displayName}}</option>
+          }
+        </select>
+  
+        <label for="title">Title</label>
+        <input type="text" id="title" placeholder="Enter your title" [(ngModel)]="projectName"/>
+  
+        <label for="privacy">Privacy</label>
+        <div class="radio-buttons">
+          <label>
+            <input type="radio" name="privacy" value="public" checked />
+            Public 🌍
+          </label>
+          <label>
+            <input type="radio" name="privacy" value="private" />
+            Private 🔒
+          </label>
+        </div>
+        <button class="create-button" (click)="onCreateProject()" [disabled]="isCreating">
+          @if(!isCreating){
+            <span>+ Create</span>
+          }
+          @else {
+            <span class="spinner"></span><span> Creating...</span>
+          }
+        </button>
+      </div>
+    </main>
+  </div>
+  

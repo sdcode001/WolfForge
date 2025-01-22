@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+    --primary-bg-color: #121212; /* Dark background */
+    --accent-color: #fb2d04;    /* Fire red */
+    --text-color: #e0e0e0;      /* Light gray text */
+  }
+  
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: var(--primary-bg-color); 
+    color: var(--text-color); 
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  a {
+    color: var(--accent-color); 
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  

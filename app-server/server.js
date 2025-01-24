@@ -4,6 +4,8 @@ const express = require('express')
 const cors = require('cors')
 const {v4 : uuidv4} = require('uuid')
 const { s3Manager }  =  require('./aws-s3-service');
+const { fileManager } = require('./file-manager-service');
+const path = require('path');
 
 
 const app = express();
@@ -39,7 +41,32 @@ app.get('/create', async (req, res) => {
 
 
 io.on('connection', async (socket) => {
-    
+    console.log(`Client: ${socket.id} connected...`)
+    socket.emit('connected', {SocketId: socket.id, Message: 'Socket server connected'});
+
+    socket.on('createProject',async (data) => {
+      //copy project form S3 bucket to local
+      try{
+         const result = await s3Manager.copyFromS3ProjectsToLocal(data.username, data.projectId);
+         if(result.status == 1){
+            const content = await fileManager.getDirectory(path.join(__dirname, `workspace/${data.username}/${data.projectId}`), '');
+            socket.emit('createProjectResult', {status: 1, data: content});
+         }
+         else{
+           socket.emit('createProjectResult', {status: 0, data: null});
+         }
+      }
+      catch(err){
+         console.log(err);
+         socket.emit('createProjectResult', {status: 0, data: null});
+      }
+    })
+
+    socket.on('disconnect', () => {
+      console.log(`Client: ${socket.id} disconnected...`)
+      //clear up local project
+      //update all project config files in S3 bucket
+    })
 })
 
 

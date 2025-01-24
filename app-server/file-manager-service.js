@@ -38,7 +38,7 @@ class FileManager {
                     reject(err);
                 }
                 else{
-                    resolve(files.map(file => ({type: file.isDirectory ? 'directory' : 'file', name: file.name, path: `${basePath}/${file.name}`})));
+                    resolve(files.map(file => ({type: file.isDirectory() ? 'directory' : 'file', name: file.name, path: `${basePath}/${file.name}`})));
                 }
             })
         });

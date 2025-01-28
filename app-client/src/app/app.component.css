@@ -18,6 +18,7 @@
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
+    text-overflow:initial;
     width: 0;
     animation: typing 3s steps(20) forwards, reset 0s 3s infinite;
   }

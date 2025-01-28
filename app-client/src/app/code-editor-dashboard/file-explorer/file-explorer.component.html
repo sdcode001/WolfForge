@@ -1,0 +1,22 @@
+@let currNode = dataSource;
+
+@switch (currNode?.type) {
+ @case ('directory') {
+  <div (click)="toggleDirectory()" [style.cursor]="'pointer'" class="row">
+   <span>{{ isExpanded() ? '📂' : '📁' }}</span> {{ currNode?.name }}
+  </div>
+  @if (isExpanded()) {
+   <div style="margin-left: 20px;">
+    @for (child of currNode?.children; track $index) {
+     <app-file-explorer [dataSource]="child" [projectData]="projectData"></app-file-explorer>
+    }
+   </div> 
+  }
+ }
+ @case ('file') {
+  <div class="row" [style.cursor]="'pointer'" (click)="onFileClick()">
+    <span [innerHTML]="getFileIcon(currNode?.name)"></span> {{ currNode?.name }}
+  </div>
+ }
+}
+

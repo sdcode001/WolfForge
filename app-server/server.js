@@ -6,6 +6,8 @@ const {v4 : uuidv4} = require('uuid')
 const { s3Manager }  =  require('./aws-s3-service');
 const { fileManager } = require('./file-manager-service');
 const path = require('path');
+const { console } = require('inspector');
+const { dir } = require('console');
 
 
 const app = express();
@@ -62,11 +64,34 @@ io.on('connection', async (socket) => {
       }
     })
 
+    socket.on('get-directory', async (data) => {
+      try{
+         const dirContent = await fileManager.getDirectory(path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`), data.path);
+         socket.emit('directory-content', {path: data.path, data: dirContent});
+      }
+      catch(err){
+         socket.emit('directory-content', {path: data.path, data: []});
+         console.log(err)
+      }
+    })
+
+    socket.on('get-file-content', async(data) => {
+       try{
+          const fileContent = await fileManager.getFileContent(path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`));
+          socket.emit('file-content', {path: data.path, data: fileContent});
+       }
+       catch(err){
+         socket.emit('file-content', {path: data.path, data: ''});
+         console.log(err)
+       }
+    })
+
     socket.on('disconnect', () => {
       console.log(`Client: ${socket.id} disconnected...`)
       //clear up local project
       //update all project config files in S3 bucket
     })
+
 })
 
 

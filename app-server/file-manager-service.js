@@ -46,7 +46,7 @@ class FileManager {
 
     async getFileContent(filePath){
         return new Promise(async (resolve, reject) => {
-            fs.readFile(path, {encoding: 'utf8'}, (err, data) => {
+            fs.readFile(filePath, {encoding: 'utf8'}, (err, data) => {
                 if(err){
                     reject(err);
                 }

@@ -26,7 +26,6 @@ export class DashboardComponent {
 
   async onCreateProject() {
     if(this.selectedTemplate!='' && this.projectName!=''){
-      //start spinner
       this.isCreating = true;
       this.dashboardService.createProject(profileData.username, this.selectedTemplate).pipe(takeUntil(this.destroy$)).subscribe({
         next: (result) => {
@@ -36,13 +35,11 @@ export class DashboardComponent {
             template: this.selectedTemplate,
             projectName: this.projectName
            }
-           //stop spinner
            this.isCreating = false;
            this.create.emit(projectData);
         },
         error: (err) => {
           console.log(err.error)
-          //stop spinner
           this.isCreating = false;
         }
       })

@@ -1,1 +1,12 @@
-<p>code-editor-dashboard works!</p>
+<div class="file-explorer-container"> 
+    @if(isFilesLoaded==1){
+        <app-file-explorer [dataSource]="this.fileDataSource" [projectData]="this.projectData"></app-file-explorer>
+    }
+    @else if(isFilesLoaded==2){
+        <h3>Files not found for {{this.projectData.projectName}}</h3>
+    }
+    @else {
+        <h3>Loading {{this.projectData.projectName}}....</h3>
+    }
+</div>
+

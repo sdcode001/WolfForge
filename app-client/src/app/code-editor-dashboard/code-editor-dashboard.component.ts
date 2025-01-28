@@ -1,18 +1,22 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ProjectMetaData } from '../app.model';
 import { SocketServerService } from './socket.service';
+import { FileNode } from './file-explorer/file-explorer.model';
+import { FileExplorerComponent } from "./file-explorer/file-explorer.component";
 
 
 @Component({
   selector: 'app-code-editor-dashboard',
   standalone: true,
-  imports: [],
+  imports: [FileExplorerComponent],
   templateUrl: './code-editor-dashboard.component.html',
   styleUrl: './code-editor-dashboard.component.css'
 })
 export class CodeEditorDashboardComponent implements OnInit {
-  @Input({required: true}) projectData?: ProjectMetaData
+  @Input({required: true}) projectData!: ProjectMetaData
   ServerSocketId: any
+  isFilesLoaded = 0 //0=loading, 1=loaded, 2=failed to load
+  fileDataSource!: FileNode
 
   constructor(private socketService: SocketServerService){}
    
@@ -21,24 +25,38 @@ export class CodeEditorDashboardComponent implements OnInit {
     
     this.socketService.on('connected').subscribe({
       next: async (data) => {
-        //start loading spinner 
+        //TODO-start loading spinner 
         this.ServerSocketId = data.SocketId
         console.log(data.Message);
         this.socketService.emit('createProject', this.projectData);
       },
       error: (err) => {
-        //stop loading spinner 
+        //TODO-stop loading spinner 
+        this.isFilesLoaded = 2
         console.log(err);
       }
     });
 
     this.socketService.on('createProjectResult').subscribe({
       next: async (data) => {
-        //stop loading spinner 
-        console.log(data);
+        //TODO-stop loading spinner 
+        if(data.status==1){
+          this.fileDataSource = {
+            name: this.projectData?.projectName,
+            type: 'directory',
+            path: '',
+            children: this.createRootFileNode(data.data)
+          }
+          this.isFilesLoaded = 1
+        }
+        else{
+          this.isFilesLoaded = 2
+          console.log(data);
+        }
       },
       error: (err) => {
-        //stop loading spinner 
+        //TODO- stop loading spinner 
+        this.isFilesLoaded = 2
         console.log(err);
       }
     })
@@ -46,8 +64,28 @@ export class CodeEditorDashboardComponent implements OnInit {
   }
 
   ngOnDestroy(){
+    console.log('onDestroy')
     this.socketService.disconnect();
     //stop loading spinner 
+  }
+
+  createRootFileNode(data: {type:string, name: string, path:string}[]): FileNode[]{
+    let result: FileNode[] = []
+    data.forEach(ele => {
+        let node: FileNode = {
+          type: ele.type,
+          name: ele.name,
+          path: ele.path     
+        }
+        if(ele.type == 'directory'){
+          node.children = []
+        }
+        else{
+          node.children = undefined
+        }
+        result.push(node)
+    })
+    return result;
   }
   
 }

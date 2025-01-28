@@ -1,0 +1,11 @@
+* {
+    line-height: 22px;
+    font-size: 15px;
+}
+   
+.row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    size: 20px;
+}

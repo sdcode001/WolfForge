@@ -1,8 +1,9 @@
-import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
-import { FileNode } from './file-explorer.model';
+import { Component, Input, OnInit, signal} from '@angular/core';
+import { FileDetails, FileNode } from './file-explorer.model';
 import { ProjectMetaData } from '../../app.model';
 import { SocketServerService } from '../socket.service';
 import { getFileIcon } from './file-explorer.util';
+import { FileTransferService } from '../file-transfer.service';
 
 @Component({
   selector: 'app-file-explorer',
@@ -19,7 +20,8 @@ export class FileExplorerComponent implements OnInit{
   fileContent = ''
   getFileIcon = getFileIcon
 
-  constructor(private socketServerService: SocketServerService){}
+  constructor(private socketServerService: SocketServerService, private fileTransferService: FileTransferService){}
+
 
   ngOnInit(){
     //If root node then expand it
@@ -40,21 +42,6 @@ export class FileExplorerComponent implements OnInit{
       })
     };
 
-    if(this.dataSource.type == 'file'){
-      this.socketServerService.on('file-content').subscribe({
-        next: (data) => {
-          if(data.path == this.dataSource?.path){
-            this.fileContent = data.data;
-            //TODO- send file content to file-editor
-            console.log(this.fileContent)
-          }
-        },
-        error: (err) => {
-           console.log(err);
-        }
-      })
-    }
-
   }
 
   toggleDirectory = () => {
@@ -66,14 +53,22 @@ export class FileExplorerComponent implements OnInit{
   }
 
   onFileClick = () => {
-    //load file content
-    if(this.fileContent == ''){
-      this.socketServerService.emit('get-file-content', {username: this.projectData.username, projectId: this.projectData.projectId, path: this.dataSource?.path})
+    const fileDetails: FileDetails = {
+      name: this.dataSource?.name,
+      path: this.dataSource?.path,
+      projectId: this.projectData.projectId,
+      username: this.projectData.username
     }
-    else{
-      //TODO- send file content to file-editor
-      console.log(this.fileContent)
-    }
+    
+    this.fileTransferService.setSelectedFile(fileDetails);
+    // //load file content
+    // if(this.fileContent == ''){
+    //   this.socketServerService.emit('get-file-content', {username: this.projectData.username, projectId: this.projectData.projectId, path: this.dataSource?.path})
+    // }
+    // else{
+    //   //TODO- send file content to file-editor
+    //   console.log(this.fileContent)
+    // }
   }
 
   createFileNode(data: {type:string, name: string, path:string}[]): FileNode[]{

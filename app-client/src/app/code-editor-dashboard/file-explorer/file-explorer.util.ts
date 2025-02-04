@@ -31,7 +31,7 @@ export const getFileIcon = (fileName: string | undefined): string => {
       case 'cpp':
         return '🔵'; // C++ file
       case 'cs':
-        return '💻'; // C# file
+        return '🟣'; // C# file
       case 'php':
         return '🐘'; // PHP file
       case 'rb':

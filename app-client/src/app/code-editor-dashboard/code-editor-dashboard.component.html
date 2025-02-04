@@ -1,12 +1,31 @@
-<div class="file-explorer-container"> 
-    @if(isFilesLoaded==1){
-        <app-file-explorer [dataSource]="this.fileDataSource" [projectData]="this.projectData"></app-file-explorer>
-    }
-    @else if(isFilesLoaded==2){
-        <h3>Files not found for {{this.projectData.projectName}}</h3>
-    }
-    @else {
-        <h3>Loading {{this.projectData.projectName}}....</h3>
-    }
-</div>
+<div class="file-explorer-container">
 
+    <div class="file-explorer-body">
+        <div class="file-explorer-sidebar" #fileExplorerSidebar>
+            <div class="file-explorer-header">
+                File Explorer
+            </div>
+
+            @if(isFilesLoaded==1){
+                <app-file-explorer [dataSource]="this.fileDataSource" [projectData]="this.projectData"></app-file-explorer>
+            }
+            @else if(isFilesLoaded==2){
+                <h3>Files not found for {{this.projectData.projectName}}</h3>
+            }
+            @else {
+                <h3>Loading {{this.projectData.projectName}}....</h3>
+            }
+        </div>
+
+        <div class="resizer" #resizer></div>
+
+        <div class="code-editor">
+            @if(this.fileDetails!=undefined){
+                <app-code-editor [fileDetails]="this.fileDetails" ></app-code-editor>
+            }
+            @else{
+                <p>Click a file to open</p>
+            }
+        </div>
+    </div>
+</div>

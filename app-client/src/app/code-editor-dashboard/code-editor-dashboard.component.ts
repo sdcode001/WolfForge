@@ -1,14 +1,16 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ProjectMetaData } from '../app.model';
 import { SocketServerService } from './socket.service';
-import { FileNode } from './file-explorer/file-explorer.model';
+import { FileDetails, FileNode } from './file-explorer/file-explorer.model';
 import { FileExplorerComponent } from "./file-explorer/file-explorer.component";
+import { CodeEditorComponent } from "./code-editor/code-editor.component";
+import { FileTransferService } from './file-transfer.service';
 
 
 @Component({
   selector: 'app-code-editor-dashboard',
   standalone: true,
-  imports: [FileExplorerComponent],
+  imports: [FileExplorerComponent, CodeEditorComponent],
   templateUrl: './code-editor-dashboard.component.html',
   styleUrl: './code-editor-dashboard.component.css'
 })
@@ -17,8 +19,9 @@ export class CodeEditorDashboardComponent implements OnInit {
   ServerSocketId: any
   isFilesLoaded = 0 //0=loading, 1=loaded, 2=failed to load
   fileDataSource!: FileNode
-
-  constructor(private socketService: SocketServerService){}
+  fileDetails?: FileDetails
+  
+  constructor(private socketService: SocketServerService, private fileTransferService: FileTransferService){}
    
   ngOnInit(){
     this.socketService.connect();
@@ -61,10 +64,15 @@ export class CodeEditorDashboardComponent implements OnInit {
       }
     })
 
+    this.fileTransferService.selectedFile$.subscribe({
+      next: (data) => {
+        this.fileDetails = data!;
+      }
+    })
+    
   }
 
   ngOnDestroy(){
-    console.log('onDestroy')
     this.socketService.disconnect();
     //stop loading spinner 
   }
@@ -87,5 +95,6 @@ export class CodeEditorDashboardComponent implements OnInit {
     })
     return result;
   }
+
   
 }

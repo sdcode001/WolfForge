@@ -1,0 +1,56 @@
+.file-explorer-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #1e1e1e; 
+    color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+h3 {
+   font-size: 15px;
+}
+
+.file-explorer-body {
+    display: flex;
+    flex-grow: 1;
+}
+
+.file-explorer-header {
+    font-size: 18px;
+    font-weight:normal;
+    background-color: #252526;
+    padding-bottom: 3px;
+    border-bottom: 2px solid var(--accent-color);  
+}
+
+.file-explorer-sidebar {
+    width: auto;
+    min-width: 250px;
+    background-color: #252526;
+    padding: 10px;
+    overflow-y: auto;
+    transition: width 0.2s ease-in-out;
+    border-right: 2px solid var(--accent-color);  
+    box-shadow: 2px 0 5px rgba(255, 69, 0, 0.2); 
+}
+
+.code-editor {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #2d2d30;
+    border-left: 1px solid #444; 
+}
+
+.resizer {
+    width: 5px;
+    background: #555;
+    cursor: ew-resize;
+    position: relative;
+    transition: background 0.2s;
+}
+
+.resizer:hover {
+    background: var(--accent-color);  
+    width: 7px;
+}

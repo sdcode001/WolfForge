@@ -14,7 +14,7 @@ import { ProjectMetaData } from '../app.model';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
-  @Output () create = new EventEmitter<ProjectMetaData>();
+  @Output() create = new EventEmitter<ProjectMetaData>();
   selectedTemplate = '';
   projectName = '';
   private readonly destroy$ = new Subject();

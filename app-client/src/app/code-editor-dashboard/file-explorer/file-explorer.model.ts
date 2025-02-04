@@ -5,3 +5,10 @@ export type FileNode = {
     type: string;
     children?: FileNode[];
    };
+
+export type FileDetails = {
+    name: string;
+    path: string;
+    projectId: string;
+    username: string;
+}

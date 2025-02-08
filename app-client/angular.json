@@ -23,7 +23,8 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "node_modules/monaco-editor/min", 
+                "output": "/assets/monaco/min"
               }
             ],
             "styles": [
@@ -81,7 +82,8 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "node_modules/monaco-editor/min", 
+                "output": "/assets/monaco/min"
               }
             ],
             "styles": [

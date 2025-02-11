@@ -1,1 +1,13 @@
-<ngx-monaco-editor class="my-code-editor" [options]="editorOptions" [(ngModel)]="this.fileContent"></ngx-monaco-editor>
+<div class="editor-container">
+    <div class="editor-header">
+      <span>{{ fileDetails.name || 'Untitled' }}</span>
+    </div>
+    
+    <ngx-monaco-editor 
+      class="my-code-editor" 
+      [options]="editorOptions" 
+      [(ngModel)]="fileContent"
+      (onInit)="onEditorInit($event)">
+    </ngx-monaco-editor>
+  </div>
+  

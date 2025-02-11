@@ -5,6 +5,9 @@ import { FileDetails, FileNode } from './file-explorer/file-explorer.model';
 import { FileExplorerComponent } from "./file-explorer/file-explorer.component";
 import { CodeEditorComponent } from "./code-editor/code-editor.component";
 import { FileTransferService } from './file-transfer.service';
+import { Store } from '@ngrx/store';
+import { IAppState } from '../../redux-store/IAppState';
+import * as reduxActions from '../../redux-store/actions'
 
 
 @Component({
@@ -21,7 +24,8 @@ export class CodeEditorDashboardComponent implements OnInit {
   fileDataSource!: FileNode
   fileDetails?: FileDetails
   
-  constructor(private socketService: SocketServerService, private fileTransferService: FileTransferService){}
+
+  constructor(private socketService: SocketServerService, private fileTransferService: FileTransferService, private reduxStore: Store<IAppState>){}
    
   ngOnInit(){
     this.socketService.connect();
@@ -74,6 +78,7 @@ export class CodeEditorDashboardComponent implements OnInit {
 
   ngOnDestroy(){
     this.socketService.disconnect();
+    this.reduxStore.dispatch(reduxActions.removeAllFilesContent({projectId: this.projectData.projectId}))
     //stop loading spinner 
   }
 

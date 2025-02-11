@@ -1,9 +1,16 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { FileDetails } from '../file-explorer/file-explorer.model';
 import { SocketServerService } from '../socket.service';
 import { fileExtensionToLanguage } from './code-editor.util';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { FormsModule } from '@angular/forms';
+import * as monaco from 'monaco-editor';
+import { select, Store } from '@ngrx/store';
+import { IAppState } from '../../../redux-store/IAppState';
+import * as reduxActions from '../../../redux-store/actions'
+import { firstValueFrom } from 'rxjs';
+import { selectFileContent } from '../../../redux-store/selectors';
+
 
 @Component({
   selector: 'app-code-editor',
@@ -12,15 +19,19 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './code-editor.component.html',
   styleUrl: './code-editor.component.css',
 })
-export class CodeEditorComponent implements OnInit, OnChanges{
-  @Input({required: true}) fileDetails?: FileDetails
+export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy{
+  @Input({required: true}) fileDetails!: FileDetails
+  editorInstance: monaco.editor.IStandaloneCodeEditor | null = null;
   fileContent: string = ''
   language?: string = ''
+  lastChangeTimeStamp?: Date = undefined
+  intervalId?: number | ReturnType<typeof setInterval> = undefined;
+  syncDelay = 1000;
+
 
   editorOptions = {
     theme: 'vs-dark',   
-    language: 'javascript',  //default language
-    minimap: { enabled: false },
+    language: 'javascript', //default language
     scrollBeyondLastLine: false,
     automaticLayout: true,
     wordWrap: 'on',
@@ -28,7 +39,10 @@ export class CodeEditorComponent implements OnInit, OnChanges{
     lineHeight: 20
   };
   
-  constructor(private socketServerService: SocketServerService){}
+  constructor(
+    private socketServerService: SocketServerService, 
+    private reduxStore: Store<IAppState>
+  ){}
 
   
   ngOnInit(){
@@ -37,21 +51,49 @@ export class CodeEditorComponent implements OnInit, OnChanges{
     this.socketServerService.on('file-content').subscribe({
       next: (data) => {
          this.fileContent = data.data.toString();
+         //save to redux state
+         this.reduxStore.dispatch(reduxActions.addOrUpdateFileContent(
+          {
+            projectId: this.fileDetails.projectId,
+            filePath: this.fileDetails.path,
+            content: this.fileContent
+          }
+        ))
       },
       error: (err) => {
          console.log(err);
       }
     })
 
-    //load file content
-    this.socketServerService.emit('get-file-content', {username: this.fileDetails?.username, projectId: this.fileDetails?.projectId, path: this.fileDetails?.path});
+    this.startCodeSync()
   }
 
 
-  ngOnChanges(){
+  ngOnDestroy() {
+    this.stopCodeSync();
+    this.reduxStore.dispatch(reduxActions.removeFileContent({
+      projectId: this.fileDetails.projectId,
+      filePath: this.fileDetails.path
+    }))
+  }
+
+
+  async ngOnChanges(){
     this.setEditorOptions();
-    //load file content
-    this.socketServerService.emit('get-file-content', {username: this.fileDetails?.username, projectId: this.fileDetails?.projectId, path: this.fileDetails?.path});
+    this.lastChangeTimeStamp = undefined;
+    //check it file content already saved in redux state or not
+    const fileContentState = await this.getFileContentFromReduxState(this.fileDetails.projectId, this.fileDetails.path);
+    if(fileContentState != undefined){
+      this.fileContent = fileContentState;
+    }
+    else{
+      //send event to load file content
+      this.socketServerService.emit('get-file-content', {
+        username: this.fileDetails?.username, 
+        projectId: this.fileDetails?.projectId, 
+        path: this.fileDetails?.path
+      });
+    }
   }
 
 
@@ -66,7 +108,6 @@ export class CodeEditorComponent implements OnInit, OnChanges{
     this.editorOptions = {
       theme: 'vs-dark',   
       language: this.language,
-      minimap: { enabled: false },
       scrollBeyondLastLine: false,
       automaticLayout: true,
       wordWrap: 'on',
@@ -74,5 +115,68 @@ export class CodeEditorComponent implements OnInit, OnChanges{
       lineHeight: 20
     };
   }
+
+
+  onEditorInit(editor: monaco.editor.IStandaloneCodeEditor) {
+    this.editorInstance = editor;
+
+    // Event Listener: Content Change
+    editor.onDidChangeModelContent(() => {
+      this.fileContent = editor.getValue();
+      this.lastChangeTimeStamp = new Date(); 
+      //save file-content state to redux
+      this.reduxStore.dispatch(reduxActions.addOrUpdateFileContent(
+        {
+          projectId: this.fileDetails.projectId,
+          filePath: this.fileDetails.path,
+          content: this.fileContent
+        }
+      ))
+    });
+
+    // Event Listener: Cursor Position Change
+    editor.onDidChangeCursorPosition((e) => {
+      console.log('Cursor moved to:', e.position);
+    });
+
+    // Event Listener: Blur
+    editor.onDidBlurEditorWidget(() => {
+      console.log('Editor lost focus');
+    });
+
+  }
+
+  async getFileContentFromReduxState(projectId: string, filePath: string): Promise<string | undefined> { 
+      return await firstValueFrom(this.reduxStore.pipe(select(selectFileContent(projectId, filePath))))
+  }
+
+  //It will only send socket event for code change for last 1 seconds
+  //Reducing unnecessary network call
+  startCodeSync(){
+     this.intervalId = setInterval(() => {
+        if(this.lastChangeTimeStamp != undefined){
+          const timeDiff = new Date().getSeconds() - this.lastChangeTimeStamp.getSeconds();
+          //check last code change 1 seconds ao or not
+          if(timeDiff == 1){
+            //send event to socket Server
+            this.socketServerService.emit('update-file-content', {
+              username: this.fileDetails?.username, 
+              projectId: this.fileDetails?.projectId, 
+              path: this.fileDetails?.path, content: 
+              this.fileContent
+            });
+            //TODO- set a status for auto save in UI
+          }
+        }
+     }, this.syncDelay)
+  }
+
+  stopCodeSync(){
+    if(this.intervalId != undefined){
+      clearInterval(this.intervalId);
+      this.intervalId = undefined;
+    }
+  }
+
 
 }

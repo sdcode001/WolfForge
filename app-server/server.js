@@ -55,7 +55,7 @@ io.on('connection', async (socket) => {
             socket.emit('createProjectResult', {status: 1, data: content});
          }
          else{
-           socket.emit('createProjectResult', {status: 0, data: null});
+            socket.emit('createProjectResult', {status: 0, data: null});
          }
       }
       catch(err){
@@ -85,6 +85,13 @@ io.on('connection', async (socket) => {
          console.log(err)
        }
     })
+
+
+    socket.on('update-file-content', async(data) => {
+      console.log(data)
+       //TODO- update local file content
+       //TODO- upfate aws project file content(using sync service)
+    });
 
     socket.on('disconnect', () => {
       console.log(`Client: ${socket.id} disconnected...`)

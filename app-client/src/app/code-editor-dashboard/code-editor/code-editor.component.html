@@ -1,13 +1,24 @@
 <div class="editor-container">
-    <div class="editor-header">
-      <span>{{ fileDetails.name || 'Untitled' }}</span>
+  <div class="editor-header">
+    <span>{{ fileDetails.name || 'Untitled' }}</span>
+    <div class="autosave-status">
+      <span [ngClass]="{
+          'status-failed': autoSaveStatus === 0,
+          'status-saved': autoSaveStatus === 1,
+          'status-saving': autoSaveStatus === 2
+        }">
+        <span *ngIf="autoSaveStatus === 1" class="status-icon success">✓</span>
+        <span *ngIf="autoSaveStatus === 0" class="status-icon failed">✗</span>
+        {{ getAutoSaveText() }}
+      </span>
+      <span *ngIf="autoFileSyncStatus === 1" class="spinner"></span>
     </div>
-    
-    <ngx-monaco-editor 
-      class="my-code-editor" 
-      [options]="editorOptions" 
-      [(ngModel)]="fileContent"
-      (onInit)="onEditorInit($event)">
-    </ngx-monaco-editor>
   </div>
   
+  <ngx-monaco-editor 
+    class="my-code-editor" 
+    [options]="editorOptions" 
+    [(ngModel)]="fileContent"
+    (onInit)="onEditorInit($event)">
+  </ngx-monaco-editor>
+</div>

@@ -8,6 +8,7 @@ const { fileManager } = require('./file-manager-service');
 const path = require('path');
 const { console } = require('inspector');
 const { dir } = require('console');
+const { fileContentQueue } = require('./bullmq-queue/queues');
 
 
 const app = express();
@@ -88,15 +89,28 @@ io.on('connection', async (socket) => {
 
 
     socket.on('update-file-content', async(data) => {
-      console.log(data)
-       //TODO- update local file content
-       //TODO- upfate aws project file content(using sync service)
+       //update local file content
+       try{
+          fileManager.updateFileContent(path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`), data.content)
+          .then(async (data) => {
+            //TODO- add job to redis-queue 
+            await fileContentQueue.add();
+            socket.emit('file-update-result', {status: 1});
+          })
+          .catch(err => {
+            socket.emit('file-update-result', {status: 0});
+          })
+       }
+       catch(err){
+          socket.emit('file-update-result', {status: 0});
+          console.log(err)
+       }
     });
 
     socket.on('disconnect', () => {
       console.log(`Client: ${socket.id} disconnected...`)
-      //clear up local project
-      //update all project config files in S3 bucket
+      //TODO- clear up local project
+      //TODO- update all project config files in S3 bucket
     })
 
 })

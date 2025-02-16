@@ -25,7 +25,7 @@ class FileManager {
             if (err) {
                 reject(err)
             } else {
-                resolve()
+                resolve({status: 1});
             }
           });
        });
@@ -54,6 +54,18 @@ class FileManager {
                     resolve(data);
                 }
             })
+        })
+    }
+
+    async updateFileContent(filepath, fileContent){
+        return new Promise(async (resolve, reject) => {
+            fs.writeFile(filepath, fileContent, (err) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve({status: 1})
+                }
+           });
         })
     }
     

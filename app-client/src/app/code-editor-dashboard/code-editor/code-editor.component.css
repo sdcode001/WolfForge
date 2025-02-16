@@ -12,6 +12,9 @@
 }
   
   .editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background-color: #1e1e1e;
     color: #fff;
     padding: 8px 12px;
@@ -20,3 +23,56 @@
     border-bottom: 1px solid #333;
   }
   
+  .autosave-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    font-size: 12px;
+  }
+
+.status-failed {
+    color: red;
+}
+
+.status-saved {
+    color: lightgreen;
+}
+
+.status-saving {
+    color: orange;
+}
+
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  color: white;
+  margin-right: 5px;
+}
+
+.success {
+  background-color: green;
+}
+
+.failed {
+  background-color: red;
+}
+.spinner {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

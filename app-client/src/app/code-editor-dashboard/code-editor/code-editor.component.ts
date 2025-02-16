@@ -10,12 +10,13 @@ import { IAppState } from '../../../redux-store/IAppState';
 import * as reduxActions from '../../../redux-store/actions'
 import { firstValueFrom } from 'rxjs';
 import { selectFileContent } from '../../../redux-store/selectors';
+import { CommonModule } from '@angular/common';
 
 
 @Component({
   selector: 'app-code-editor',
   standalone: true,
-  imports: [MonacoEditorModule, FormsModule],
+  imports: [MonacoEditorModule, FormsModule, CommonModule],
   templateUrl: './code-editor.component.html',
   styleUrl: './code-editor.component.css',
 })
@@ -27,6 +28,9 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy{
   lastChangeTimeStamp?: Date = undefined
   intervalId?: number | ReturnType<typeof setInterval> = undefined;
   syncDelay = 1000;
+  lastSyncIntervalSecond = 2;
+  autoFileSyncStatus = 0; //0 = stop, 1 = start
+  autoSaveStatus = 1; //0 = failed, 1 = saved, 2 = saving..
 
 
   editorOptions = {
@@ -51,6 +55,7 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy{
     this.socketServerService.on('file-content').subscribe({
       next: (data) => {
          this.fileContent = data.data.toString();
+         this.autoFileSyncStatus = 0;
          //save to redux state
          this.reduxStore.dispatch(reduxActions.addOrUpdateFileContent(
           {
@@ -62,6 +67,24 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy{
       },
       error: (err) => {
          console.log(err);
+      }
+    })
+
+
+    this.socketServerService.on('file-update-result').subscribe({
+      next: (data) => {
+         this.autoFileSyncStatus = 0;
+         if(data.status == 1){
+            this.autoSaveStatus = 1;
+         }
+         else{
+           this.autoSaveStatus = 0;
+         }
+      },
+      error: (err) => {
+        this.autoFileSyncStatus = 0;
+        this.autoSaveStatus = 0;
+        console.log(err);
       }
     })
 
@@ -81,10 +104,14 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy{
   async ngOnChanges(){
     this.setEditorOptions();
     this.lastChangeTimeStamp = undefined;
+    this.autoFileSyncStatus = 1;
+    this.autoSaveStatus = 1;
+    this.fileContent = ''
     //check it file content already saved in redux state or not
     const fileContentState = await this.getFileContentFromReduxState(this.fileDetails.projectId, this.fileDetails.path);
     if(fileContentState != undefined){
       this.fileContent = fileContentState;
+      this.autoFileSyncStatus = 0;
     }
     else{
       //send event to load file content
@@ -94,6 +121,12 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy{
         path: this.fileDetails?.path
       });
     }
+  }
+
+  getAutoSaveText() {
+    if(this.autoSaveStatus==1){return 'Saved';}
+    else if(this.autoSaveStatus==0){return 'Failed to save';}
+    return 'Saving...';
   }
 
 
@@ -122,6 +155,8 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy{
 
     // Event Listener: Content Change
     editor.onDidChangeModelContent(() => {
+      this.autoFileSyncStatus = 1;
+      this.autoSaveStatus = 2;
       this.fileContent = editor.getValue();
       this.lastChangeTimeStamp = new Date(); 
       //save file-content state to redux
@@ -150,22 +185,21 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy{
       return await firstValueFrom(this.reduxStore.pipe(select(selectFileContent(projectId, filePath))))
   }
 
-  //It will only send socket event for code change for last 1 seconds
+  //It will only send socket event for code change for last lastSyncIntervalSecond seconds
   //Reducing unnecessary network call
   startCodeSync(){
      this.intervalId = setInterval(() => {
         if(this.lastChangeTimeStamp != undefined){
           const timeDiff = new Date().getSeconds() - this.lastChangeTimeStamp.getSeconds();
-          //check last code change 1 seconds ao or not
-          if(timeDiff == 1){
+          //check last code change lastSyncIntervalSecond seconds ao or not
+          if(timeDiff == this.lastSyncIntervalSecond){
             //send event to socket Server
             this.socketServerService.emit('update-file-content', {
               username: this.fileDetails?.username, 
               projectId: this.fileDetails?.projectId, 
-              path: this.fileDetails?.path, content: 
-              this.fileContent
+              path: this.fileDetails?.path, 
+              content: this.fileContent
             });
-            //TODO- set a status for auto save in UI
           }
         }
      }, this.syncDelay)

@@ -1,13 +1,12 @@
 const { Queue } = require('bullmq');
-const { redisConnection } =  require('./redis-connection');
+const { redisConfig } =  require('./redis-connection');
 
 
-const fileContentQueue = new Queue(
-    'file-content-queue',
+const fileContentQueue = new Queue('file-content-queue',
     {
-        connection: redisConnection
+        connection: redisConfig
     }
-)
+);
 
 module.exports = {
     fileContentQueue

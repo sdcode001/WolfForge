@@ -1,10 +1,18 @@
 const { Worker } = require("bullmq");
 const { redisConnection } =  require("./redis-connection");
+const { s3Manager } = require('./aws-s3-manager');
+
 
 const fileSyncWorker = new Worker(
     'file-content-queue',
     async (job) => {
-        //TODO- update file content in S3
+        const {username, projectId, path, fileName, content} = job.data;
+        try{
+            await s3Manager.fileContentUpdateToS3(username, projectId, path, content);
+        }
+        catch(err){
+            console.log(err);
+        }
     },
     {
       connection: redisConnection,

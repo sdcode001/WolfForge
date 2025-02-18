@@ -198,6 +198,7 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy{
               username: this.fileDetails?.username, 
               projectId: this.fileDetails?.projectId, 
               path: this.fileDetails?.path, 
+              fileName: this.fileDetails.name,
               content: this.fileContent
             });
           }

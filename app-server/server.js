@@ -8,6 +8,7 @@ const { fileManager } = require('./file-manager-service');
 const path = require('path');
 const { console } = require('inspector');
 const { dir } = require('console');
+const { Queue } = require('bullmq');
 const { fileContentQueue } = require('./bullmq-queue/queues');
 
 
@@ -92,13 +93,13 @@ io.on('connection', async (socket) => {
        //update local file content
        try{
           fileManager.updateFileContent(path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`), data.content)
-          .then(async (data) => {
-            //TODO- add job to redis-queue 
-            await fileContentQueue.add();
+          .then(async (data1) => { 
+            await fileContentQueue.add(data.fileName, data);
             socket.emit('file-update-result', {status: 1});
           })
           .catch(err => {
             socket.emit('file-update-result', {status: 0});
+            console.log(err)
           })
        }
        catch(err){

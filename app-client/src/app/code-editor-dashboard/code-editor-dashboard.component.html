@@ -27,5 +27,21 @@
                 <p>Click a file to open</p>
             }
         </div>
+
+        @if(isTerminalOpen){
+            <div class="terminal-box">
+                <app-terminal></app-terminal>
+            </div>
+        }
+
+
+        <div class="control-panel">
+            <button class="control-btn" title="Run Code">
+                <img src="assets/icons/play-icon.svg" alt="Play Icon">
+            </button>
+            <button [ngClass] = "{'control-btn-selected': isTerminalOpen, 'control-btn': !isTerminalOpen}" title="Open Terminal" (click)="toggleTerminal()">
+                <img src="assets/icons/terminal-icon.svg" alt="Terminal Icon">
+            </button>
+        </div>
     </div>
 </div>

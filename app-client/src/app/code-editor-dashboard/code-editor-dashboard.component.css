@@ -37,7 +37,8 @@ h3 {
 
 .code-editor {
     flex-grow: 1;
-    padding: 20px;
+    padding: 5px;
+    width: 50%;
     background-color: #2d2d30;
     border-left: 1px solid #444; 
 }
@@ -53,4 +54,63 @@ h3 {
 .resizer:hover {
     background: var(--accent-color);  
     width: 7px;
+}
+
+
+.control-panel {
+    width: 45px;
+    background-color: #252526;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    gap: 15px;
+    border-left: 2px solid var(--accent-color);
+    box-shadow: -2px 0 5px rgba(255, 69, 0, 0.2);
+}
+
+.control-btn {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.control-btn:hover {
+    background-color: var(--accent-color);
+}
+
+.control-btn-selected{
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s;
+    background-color: var(--accent-color);
+}
+
+.control-btn .material-icons {
+    font-size: 24px;
+    color: #fff;
+}
+
+
+.terminal-box {
+    background-color: #1e1e1e;
+    color: #fff;
+    padding: 10px;
+    border-left: 2px solid var(--accent-color);
+    width: 30%;
+    overflow-y: auto;
 }

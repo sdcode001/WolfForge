@@ -8,12 +8,14 @@ import { FileTransferService } from './file-transfer.service';
 import { Store } from '@ngrx/store';
 import { IAppState } from '../../redux-store/IAppState';
 import * as reduxActions from '../../redux-store/actions'
+import { TerminalComponent } from "./terminal/terminal.component";
+import { CommonModule } from '@angular/common';
 
 
 @Component({
   selector: 'app-code-editor-dashboard',
   standalone: true,
-  imports: [FileExplorerComponent, CodeEditorComponent],
+  imports: [FileExplorerComponent, CodeEditorComponent, TerminalComponent, CommonModule],
   templateUrl: './code-editor-dashboard.component.html',
   styleUrl: './code-editor-dashboard.component.css'
 })
@@ -23,6 +25,7 @@ export class CodeEditorDashboardComponent implements OnInit {
   isFilesLoaded = 0 //0=loading, 1=loaded, 2=failed to load
   fileDataSource!: FileNode
   fileDetails?: FileDetails
+  isTerminalOpen: boolean = false;
   
 
   constructor(private socketService: SocketServerService, private fileTransferService: FileTransferService, private reduxStore: Store<IAppState>){}
@@ -99,6 +102,11 @@ export class CodeEditorDashboardComponent implements OnInit {
         result.push(node)
     })
     return result;
+  }
+
+  toggleTerminal() {
+    this.isTerminalOpen = !this.isTerminalOpen;
+    
   }
 
   

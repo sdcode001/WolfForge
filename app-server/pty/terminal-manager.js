@@ -16,8 +16,11 @@ class TerminalManager {
       this.sessions[socket.id] = terminal;
 
       this.sessions[socket.id].on('exit', () => {
+        this.sessions[socket.id].kill();
         delete this.sessions[socket.id];
       });
+      //return process id of pty
+      return terminal.pid;
     }
 
     writeTerminal(terminalId, data) {
@@ -30,8 +33,8 @@ class TerminalManager {
     }
 }
 
-//const terminalManager = new TerminalManager();
+const terminalManager = new TerminalManager();
 
 module.exports = {
-    TerminalManager
+    terminalManager
 }

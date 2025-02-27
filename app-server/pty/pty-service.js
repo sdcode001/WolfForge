@@ -25,7 +25,7 @@ class PTY {
        })
 
        this.terminal.on('data', (data) => {
-         this.socket.emit('terminal-response', {data: Buffer.from(data, 'utf-8')});
+         this.socket.emit('terminal-result', {data: Buffer.from(data, 'utf-8')});
        })
 
        return this.terminal;

@@ -1,122 +1,36 @@
 const http = require('http');
-const {Socket, Server} = require('socket.io');
 const express = require('express')
 const cors = require('cors')
-const {v4 : uuidv4} = require('uuid')
-const { s3Manager }  =  require('./aws-s3-service');
-const { fileManager } = require('./file-manager-service');
-const path = require('path');
+const { initHttp } = require('./app-http')
+const { initWebsocket } = require('./app-socket')
+const { initPTYWebsocket } = require('./pty/terminal-socket')
 const { console } = require('inspector');
-const { dir } = require('console');
-const { Queue } = require('bullmq');
-const { fileContentQueue } = require('./bullmq-queue/queues');
+require('dotenv').config({path: './.env'})
 
 
 const app = express();
 const server = http.createServer(app);
-const PORT = 5000;
 
-const io = new Server(server, {
-   cors: {
-      origin: "*",
-      methods: ['GET', 'POST']
-   }
-})
+//for terminal socker server
+const app_terminal = express();
+const terminal_server = http.createServer(app_terminal);
+
+const APP_SERVER_PORT = process.env.APP_SERVER_PORT;
+const PTY_SERVER_PORT = process.env.PTY_SERVER_PORT;
 
 app.use(cors());
 
-//example GET- http://localhost:5000/create?template=angular&username=sdcode001
-app.get('/create', async (req, res) => {
-   const username = req.query.username;
-   const template = req.query.template;
-   const id = uuidv4();
-   
-   if(username && template && id){
-    const result = await s3Manager.copyFromS3TemplateToProject(username, template, id);
-    if(result.status === 1){
-       return res.status(200).json({status: 1, projectId: id, message: 'project created'});
-    }
-    return res.status(500).json({status: 0, projectId: null, message: 'Error occurred while creating project!'});
-   }
-   else{
-    return res.status(404).json({status: 0, projectId: null, message: 'missing parameters!'});
-   } 
+initHttp(app);
+
+initWebsocket(server)
+
+initPTYWebsocket(terminal_server)
+
+server.listen(APP_SERVER_PORT, () => {
+    console.log('App Server listening to PORT:',APP_SERVER_PORT);
 })
 
-
-io.on('connection', async (socket) => {
-    console.log(`Client: ${socket.id} connected...`)
-    socket.emit('connected', {SocketId: socket.id, Message: 'Socket server connected'});
-
-    socket.on('createProject',async (data) => {
-      //copy project form S3 bucket to local
-      try{
-         const result = await s3Manager.copyFromS3ProjectsToLocal(data.username, data.projectId);
-         if(result.status == 1){
-            const content = await fileManager.getDirectory(path.join(__dirname, `workspace/${data.username}/${data.projectId}`), '');
-            socket.emit('createProjectResult', {status: 1, data: content});
-         }
-         else{
-            socket.emit('createProjectResult', {status: 0, data: null});
-         }
-      }
-      catch(err){
-         console.log(err);
-         socket.emit('createProjectResult', {status: 0, data: null});
-      }
-    })
-
-    socket.on('get-directory', async (data) => {
-      try{
-         const dirContent = await fileManager.getDirectory(path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`), data.path);
-         socket.emit('directory-content', {path: data.path, data: dirContent});
-      }
-      catch(err){
-         socket.emit('directory-content', {path: data.path, data: []});
-         console.log(err)
-      }
-    })
-
-    socket.on('get-file-content', async(data) => {
-       try{
-          const fileContent = await fileManager.getFileContent(path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`));
-          socket.emit('file-content', {path: data.path, data: fileContent});
-       }
-       catch(err){
-         socket.emit('file-content', {path: data.path, data: ''});
-         console.log(err)
-       }
-    })
-
-
-    socket.on('update-file-content', async(data) => {
-       //update local file content
-       try{
-          fileManager.updateFileContent(path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`), data.content)
-          .then(async (data1) => { 
-            await fileContentQueue.add(data.fileName, data);
-            socket.emit('file-update-result', {status: 1});
-          })
-          .catch(err => {
-            socket.emit('file-update-result', {status: 0});
-            console.log(err)
-          })
-       }
-       catch(err){
-          socket.emit('file-update-result', {status: 0});
-          console.log(err)
-       }
-    });
-
-    socket.on('disconnect', () => {
-      console.log(`Client: ${socket.id} disconnected...`)
-      //TODO- clear up local project
-      //TODO- update all project config files in S3 bucket
-    })
-
+terminal_server.listen(PTY_SERVER_PORT, () => {
+    console.log('Terminal Server listening to PORT:',PTY_SERVER_PORT);
 })
 
-
-server.listen(PORT, () => {
-    console.log('Server listening to PORT:',PORT);
-})

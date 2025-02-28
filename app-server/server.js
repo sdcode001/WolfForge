@@ -4,7 +4,6 @@ const cors = require('cors')
 const { initHttp } = require('./app-http')
 const { initWebsocket } = require('./app-socket')
 const { initPTYWebsocket } = require('./pty/terminal-socket')
-const { console } = require('inspector');
 require('dotenv').config({path: './.env'})
 
 
@@ -31,6 +30,6 @@ server.listen(APP_SERVER_PORT, () => {
 })
 
 terminal_server.listen(PTY_SERVER_PORT, () => {
-    console.log('Terminal Server listening to PORT:',PTY_SERVER_PORT);
+    console.log('PTY Server listening to PORT:',PTY_SERVER_PORT);
 })
 

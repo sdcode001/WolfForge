@@ -2,3 +2,4 @@
 2. cd app-server, npm i --force
 3. cd sync-service, npm i --force
 4. install redis locally on port 6379 and start redis-server (BullMQ require redis version > 6)
+5. setup proper environment to run node-pty for app-server

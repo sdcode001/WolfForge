@@ -1,0 +1,22 @@
+/* Ensure the terminal takes full space and hides unnecessary elements */
+.terminal-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  background-color: black;
+  padding: 10px;
+}
+
+/* Terminal should take full space */
+.terminal-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+
+/* Hide the measurement element */
+.xterm-helpers {
+  display: none !important;
+}

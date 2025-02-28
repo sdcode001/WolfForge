@@ -16,15 +16,14 @@ function initPTYWebsocket(server) {
 
         socket.on('create-terminal', (data) => {
             const pid = terminalManager.createPTY(socket, data.username, data.projectId);
-            socket.emit('created-terminal', {processId: pid});
+            socket.emit('created-terminal', {ProcessId: pid});
         })
 
         socket.on('write-terminal', (data) => {
-            terminalManager.writeTerminal(socket.id, data);
+            terminalManager.writeTerminal(socket.id, data.command);
         })
 
         socket.on('disconnect', () => {
-            console.log(`Terminal: ${socket.id} disconnected...`)
             terminalManager.clearTerminal(socket.id);
         })
     })

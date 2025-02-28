@@ -15,20 +15,26 @@ class PTY {
         this.projectId = projectId;
         this.username = username;
         this.shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
+
+        this.createPTY();
     }
 
     createPTY() {
        this.terminal = pty.spawn(this.shell, [], {
         cols: 100,
-        name: 'xterm',
-        cwd: path.join(__dirname, `../workspace/${this.username}/${this.projectId}`)
+        name: 'xterm-256color',
+        cwd: path.join(__dirname, `../workspace/${this.username}/${this.projectId}`),
+        env: { ...process.env, TERM: 'xterm-256color' }
        })
 
        this.terminal.on('data', (data) => {
-         this.socket.emit('terminal-result', {data: Buffer.from(data, 'utf-8')});
+         this.socket.emit('terminal-result', {result: data});
+         //this.socket.emit('terminal-result', {result: Buffer.from(data, 'utf-8')});
        })
+    }
 
-       return this.terminal;
+    getTerminal(){
+      return this.terminal;
     }
 
     writeTerminal(data){

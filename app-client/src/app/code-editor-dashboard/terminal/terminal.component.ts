@@ -51,7 +51,9 @@ export class TerminalComponent implements OnInit, OnDestroy, AfterViewInit {
       next: (data) => {
         //write data to xterm terminal
         console.log(data.result)
-        this.terminal.write(data.result);
+        this.terminal.write(data.result.replace(/\n/g, '\r\n')); 
+        this.terminal.scrollToBottom()
+        this.fitAddon.fit();
         // if (data.result instanceof ArrayBuffer) {
         //   console.log(this.arrayBufferToString(data.result))
         //   this.terminal.write(this.arrayBufferToString(data.result));
@@ -82,8 +84,7 @@ export class TerminalComponent implements OnInit, OnDestroy, AfterViewInit {
       cursorBlink: true,
       theme: { background: '#1e1e1e', foreground: '#ffffff' },
       rightClickSelectsWord: true,
-      allowProposedApi: true,   
-      windowsMode: true,        
+      allowProposedApi: true,       
       scrollOnUserInput: true,
     });
 
@@ -96,7 +97,7 @@ export class TerminalComponent implements OnInit, OnDestroy, AfterViewInit {
     this.terminal.onData((data) => {
       if (data === '\r') {  //Enter key pressed
         this.terminal.write('\r\n'); //Move to new line
-        this.terminalSocketService.emit('write-terminal', { terminalId: this.terminalId, command: this.commandBuffer });
+        this.terminalSocketService.emit('write-terminal', { terminalId: this.terminalId, command: this.commandBuffer + '\r' });
         this.commandBuffer = ''; 
       } else {
         this.commandBuffer += data;

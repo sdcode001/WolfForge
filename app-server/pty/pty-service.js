@@ -24,7 +24,7 @@ class PTY {
         cols: 100,
         name: 'xterm-256color',
         cwd: path.join(__dirname, `../workspace/${this.username}/${this.projectId}`),
-        env: { ...process.env, TERM: 'xterm-256color' }
+        env: process.env
        })
 
        this.terminal.on('data', (data) => {

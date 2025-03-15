@@ -17,7 +17,7 @@ destroyed unless explicitly removed or the parent route/component is destroyed. 
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  projectMetaData: ProjectMetaData = {username: 'sdcode001', projectId: 'b54671c8-250b-477f-966d-c73b6a0aef14', projectName: 'Hello', template: 'angular'};
+  projectMetaData: ProjectMetaData = {username: '', projectId: '', projectName: '', template: ''};
 
   onCreateProject(data: ProjectMetaData) {
     this.projectMetaData = data;

@@ -26,7 +26,7 @@ initWebsocket(server)
 initPTYWebsocket(terminal_server)
 
 server.listen(APP_SERVER_PORT, () => {
-    console.log('App Server listening to PORT:',APP_SERVER_PORT);
+    console.log('Worker Server listening to PORT:',APP_SERVER_PORT);
 })
 
 terminal_server.listen(PTY_SERVER_PORT, () => {

@@ -6,7 +6,8 @@ import { ResponseData } from './dashboard.model';
 
 @Injectable({providedIn: 'root'})
 export class DashboardService {
-    private REST_API_SERVER = 'http://localhost:5000/create'
+    //primary server
+    private REST_API_SERVER = 'http://localhost:3000/create' 
 
     constructor(private http: HttpClient){}
 

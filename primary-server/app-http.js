@@ -1,8 +1,9 @@
 const {v4 : uuidv4} = require('uuid')
 const { s3Manager }  =  require('./aws-s3-service');
 
+
 function initHttp(app){
-    //example GET- http://localhost:5000/create?template=angular&username=sdcode001
+    //example GET- http://localhost:3000/create?template=angular&username=sdcode001
     app.get('/create', async (req, res) => {
         const username = req.query.username;
         const template = req.query.template;

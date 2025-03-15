@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 
 @Injectable({providedIn: 'root'})
 export class SocketServerService {
+  //worker server
   private SOCKET_SERVER_URL = 'http://localhost:5000';
   private socket!: Socket
   

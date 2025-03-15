@@ -99,7 +99,14 @@ export class TerminalComponent implements OnInit, OnDestroy, AfterViewInit {
         this.terminal.write('\r\n'); //Move to new line
         this.terminalSocketService.emit('write-terminal', { terminalId: this.terminalId, command: this.commandBuffer + '\r' });
         this.commandBuffer = ''; 
-      } else {
+      } 
+      else if (data === '\x7f') { // Backspace pressed
+        if (this.commandBuffer.length > 0) {
+          this.commandBuffer = this.commandBuffer.slice(0, -1);
+          this.terminal.write('\b \b'); 
+        }
+      }
+      else {
         this.commandBuffer += data;
         this.terminal.write(data);
       }

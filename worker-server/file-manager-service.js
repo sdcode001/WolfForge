@@ -9,9 +9,9 @@ class FileManager {
            //when recursive=true, it will recursively create directory from parent to child.
            fs.mkdir(dirPath, {recursive: true}, (err) => {
             if (err) {
-               return reject(err)
+               return reject(err);
             }
-            resolve()
+            resolve("success");
            });
        });
     }
@@ -69,7 +69,19 @@ class FileManager {
         })
     }
     
+    async deleteFileOrDirectory(targetPath){
+        return new Promise(async (resolve, reject) => {
+            fs.rm(targetPath, {recursive: true, force: true}, (err) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve({status: 1})
+                }
+            })
+        })
+    }
 
+    
 }
 
 const fileManager = new FileManager();

@@ -82,6 +82,82 @@ class S3BucketManager {
       }
    }
 
+   async createDirectory(username, id, path, dirName){
+      const pathToDir = `projects/${username}/${id}${path}`;
+      const params = {
+       Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
+       Key: `${pathToDir}/${dirName}/`, 
+       Body: ''
+      };
+
+       try{
+         await s3_manager_driver.putObject(params).promise();
+         return {status: 1, path: `${pathToDir}/${dirName}`};
+       }
+       catch(err){
+          console.error('Error creating folder to S3 bucket:', err);
+          return {status: 0, path: null};
+       }
+   }
+
+   async createFile(username, id, path, fileName){
+      const pathToFile = `projects/${username}/${id}${path}`;
+      const params = {
+      Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
+      Key: `${pathToFile}/${fileName}`, 
+      Body: ''
+      };
+
+      try{
+         await s3_manager_driver.putObject(params).promise();
+         return {status: 1, path: `${pathToFile}/${fileName}`};
+      }
+      catch(err){
+         console.error('Error creating file to S3 bucket:', err);
+         return {status: 0, path: null};
+      }
+   }
+
+   async deleteFile(username, id, path){
+      const pathToFile = `projects/${username}/${id}${path}`;
+      const params = {
+         Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
+         Key: pathToFile
+      };
+ 
+     try {
+         await s3_manager_driver.deleteObject(params).promise();
+         return {status: 1};
+     } catch (err) {
+         console.error('Error deleting file:', err);
+         return {status: 0};
+     }
+   }
+
+   async deleteDirectory(username, id, path){
+      const pathToDir = `projects/${username}/${id}${path}/`;
+      const listParams = {
+         Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
+         Prefix: pathToDir 
+      };
+
+      try {
+         const listedObjects = await s3_manager_driver.listObjectsV2(listParams).promise();
+         if (listedObjects.Contents.length == 0) {return {status: 1};}
+ 
+         const deleteParams = {
+             Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
+             Delete: { Objects: listedObjects.Contents.map(obj => ({ Key: obj.Key })) }
+         };
+ 
+         await s3_manager_driver.deleteObjects(deleteParams).promise();
+         return {status: 1};
+      }catch (err) {
+         console.error('Error deleting folder:', err);
+         return {status: 0};
+      }
+   }
+   
 };
 
 

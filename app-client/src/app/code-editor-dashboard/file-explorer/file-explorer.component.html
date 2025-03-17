@@ -1,22 +1,61 @@
 @let currNode = dataSource;
 
 @switch (currNode?.type) {
- @case ('directory') {
-  <div (click)="toggleDirectory()" [style.cursor]="'pointer'" class="row">
-   <span>{{ isExpanded() ? '📂' : '📁' }}</span> {{ currNode?.name }}
-  </div>
-  @if (isExpanded()) {
-   <div style="margin-left: 20px;">
-    @for (child of currNode?.children; track $index) {
-     <app-file-explorer [dataSource]="child" [projectData]="projectData"></app-file-explorer>
-    }
-   </div> 
-  }
- }
- @case ('file') {
-  <div class="row" [style.cursor]="'pointer'" (click)="onFileClick()">
-    <span [innerHTML]="getFileIcon(currNode?.name)"></span> {{ currNode?.name }}
-  </div>
- }
-}
+  @case ('directory') {
+    <div 
+      class="row directory"
+      (mouseenter)="showActions = true" 
+      (mouseleave)="showActions = false"
+    >
+      <div (click)="toggleDirectory()" [style.cursor]="'pointer'">
+        <span >{{ isExpanded() ? '📂' : '📁' }}</span> {{ currNode?.name }}
+      </div>
+      @if(showActions && currNode.path!=""){
+        <span class="actions">
+          <button title="New File" (click)="createNewFile()"><img class="action-icon" src="assets/icons/add-file.png" alt="New File" /></button> 
+          <button title="New Folder" (click)="createNewFolder()"><img class="action-icon" src="assets/icons/add-folder.png" alt="New Folder" /></button>
+          <!-- <button title="Rename"><img class="action-icon" src="assets/icons/rename.png" alt="Rename" /></button> -->
+          <button title="Delete" (click)="deleteFolderOrFile()"><img class="action-icon" src="assets/icons/delete.png" alt="Delete" /></button>
+        </span>
+      }
+      
+    </div>
 
+    @if (showNewFolderOrFileInput) {
+      <div style="margin-left: 20px;">
+        @if(this.newResourceType=='directory'){📂}
+        @else{📄}
+        <input type="text" [(ngModel)]="newFolderOrFileName"
+               (keyup.enter)="saveNewFolderOrFolder()" 
+               class="folder-input"
+               [placeholder]= "this.newResourceType=='directory'?'Enter folder name...':'Enter file name...'" />
+      </div>
+    }
+
+    @if (isExpanded()) {
+      <div style="margin-left: 20px;">
+        @for (child of currNode?.children; track $index) {
+          <app-file-explorer [dataSource]="child" [projectData]="projectData"></app-file-explorer>
+        }
+      </div> 
+    }
+  }
+  @case ('file') {
+    <div 
+      class="row file" 
+      (mouseenter)="showActions = true" 
+      (mouseleave)="showActions = false"
+    >
+      <div (click)="onFileClick()" [style.cursor]="'pointer'" >
+        <span [innerHTML]="getFileIcon(currNode?.name)"></span> {{ currNode?.name }}
+      </div>
+      
+      @if(showActions){
+        <span class="actions">
+          <!-- <button title="Rename"><img class="action-icon" src="assets/icons/rename.png" alt="Rename" /></button> -->
+          <button title="Delete" (click)="deleteFolderOrFile()"><img class="action-icon" src="assets/icons/delete.png" alt="Delete" /></button>
+        </span>
+      }
+    </div>
+  }
+}

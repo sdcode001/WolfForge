@@ -1,14 +1,15 @@
-import { Component, Input, OnInit, signal} from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnInit, signal} from '@angular/core';
 import { FileDetails, FileNode } from './file-explorer.model';
 import { ProjectMetaData } from '../../app.model';
 import { SocketServerService } from '../socket.service';
 import { getFileIcon } from './file-explorer.util';
 import { FileTransferService } from '../file-transfer.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-file-explorer',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './file-explorer.component.html',
   styleUrl: './file-explorer.component.css'
 })
@@ -19,11 +20,16 @@ export class FileExplorerComponent implements OnInit{
   isExpanded = signal(false);
   fileContent = ''
   getFileIcon = getFileIcon
+  showActions = false;
+  showNewFolderOrFileInput = false;  
+  newFolderOrFileName = '';
+  newResourceType = '';
 
-  constructor(private socketServerService: SocketServerService, private fileTransferService: FileTransferService){}
+  constructor(private socketServerService: SocketServerService, private fileTransferService: FileTransferService, private elRef: ElementRef){}
 
 
   ngOnInit(){
+    console.log(this.dataSource.path)
     //If root node then expand it
     if(this.dataSource?.name==this.projectData.projectName){
       this.isExpanded.update(prev => !prev);
@@ -88,6 +94,65 @@ export class FileExplorerComponent implements OnInit{
           result.push(node)
       })
       return result;
+    }
+
+
+    createNewFolder() {
+      this.showNewFolderOrFileInput = true;
+      this.newResourceType = 'directory';
+      if(!this.isExpanded()){
+        this.toggleDirectory();
+      }
+      this.newFolderOrFileName = '';
+    }
+
+    createNewFile(){
+      this.showNewFolderOrFileInput = true;
+      this.newResourceType = 'file';
+      if(!this.isExpanded()){
+        this.toggleDirectory();
+      }
+      this.newFolderOrFileName = '';
+    }
+  
+    saveNewFolderOrFolder() {
+      if (!this.newFolderOrFileName.trim() || this.newResourceType == '') {
+        this.showNewFolderOrFileInput = false;
+        return;
+      }
+
+      //TODO- API call
+  
+      const newFolder: FileNode = {
+        type: this.newResourceType,
+        name: this.newFolderOrFileName,
+        path: `${this.dataSource.path}/${this.newFolderOrFileName}`,
+        children: []
+      };
+  
+      this.dataSource.children = this.dataSource.children || [];
+      this.dataSource.children.push(newFolder);
+  
+      this.showNewFolderOrFileInput = false;
+      this.newResourceType = '';
+    }
+
+    @HostListener('document:click', ['$event'])
+    onClickOutside(event: Event) {
+      if (this.showNewFolderOrFileInput && !this.elRef.nativeElement.contains(event.target)) {
+        this.showNewFolderOrFileInput = false;
+      }
+    }
+
+    async deleteFolderOrFile(){
+      const isConfirmed = window.confirm(`Are you sure you want to delete ${this.dataSource.name}?`);
+      if (isConfirmed) {
+        await this.deleteResource();
+      }
+    }
+
+    async deleteResource(){
+
     }
 
 }

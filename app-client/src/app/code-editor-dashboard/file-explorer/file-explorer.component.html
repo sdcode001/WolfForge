@@ -35,7 +35,7 @@
     @if (isExpanded()) {
       <div style="margin-left: 20px;">
         @for (child of currNode?.children; track $index) {
-          <app-file-explorer [dataSource]="child" [projectData]="projectData"></app-file-explorer>
+          <app-file-explorer [dataSource]="child" [projectData]="projectData" (remove)="removeChildNode($event)"></app-file-explorer>
         }
       </div> 
     }

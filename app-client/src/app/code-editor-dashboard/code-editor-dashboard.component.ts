@@ -106,8 +106,10 @@ export class CodeEditorDashboardComponent implements OnInit {
 
   toggleTerminal() {
     this.isTerminalOpen = !this.isTerminalOpen;
-    
   }
 
+  removeChildNode(node: FileNode) {
+    this.fileDataSource.children = this.fileDataSource.children?.filter(v => v.path != node.path);
+  }
   
 }

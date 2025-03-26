@@ -1,16 +1,24 @@
+const { setFips } = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
 
 class FileManager {
 
-   async createDirectory(dirPath) {
+   async createDirectoryOrFile(dirPath, isFile) {
        return new Promise(async (resolve, reject) => {
            //when recursive=true, it will recursively create directory from parent to child.
            fs.mkdir(dirPath, {recursive: true}, (err) => {
             if (err) {
                return reject(err);
-            }
+            }  
+            if(isFile){
+               fs.writeFile(dirPath, '', (err) => {
+                 if (err) {
+                    return reject(err);
+                 } 
+               });
+            }  
             resolve("success");
            });
        });
@@ -19,16 +27,16 @@ class FileManager {
    async writeFile(filepath, fileContent){
        return new Promise(async (resolve, reject) => {
           //first create directories of filepath if not exists.
-          await this.createDirectory(path.dirname(filepath));
+          await this.createDirectoryOrFile(path.dirname(filepath), false);
           
-          fs.writeFile(filepath, fileContent, (err) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve({status: 1});
-            }
-          });
-       });
+            fs.writeFile(filepath, fileContent, (err) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve({status: 1});
+                }
+            });
+        });
     }
 
     async getDirectory(dirPath, basePath){

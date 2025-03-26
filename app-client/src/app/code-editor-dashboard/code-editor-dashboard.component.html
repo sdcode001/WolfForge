@@ -7,7 +7,7 @@
             </div>
 
             @if(isFilesLoaded==1){
-                <app-file-explorer [dataSource]="this.fileDataSource" [projectData]="this.projectData"></app-file-explorer>
+                <app-file-explorer [dataSource]="this.fileDataSource" [projectData]="this.projectData" (remove)="removeChildNode($event)"></app-file-explorer>
             }
             @else if(isFilesLoaded==2){
                 <h3>Files not found for {{this.projectData.projectName}}</h3>

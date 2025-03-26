@@ -1,6 +1,7 @@
 const path = require('path');
 const { S3 } = require('aws-sdk');
-const { fileManager } = require('./file-manager-service')
+const { fileManager } = require('./file-manager-service');
+const { error } = require('console');
 require('dotenv').config({path: './.env'});
 
 
@@ -37,16 +38,30 @@ class S3BucketManager {
 
             const destinationPath = file.Key.replace(sourcePath, localDestination);
 
-            const getObjectConfig = {
-               Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
-               Key: file.Key
+            //for directory
+            if(destinationPath.endsWith('/')){
+               await fileManager.createDirectoryOrFile(destinationPath, false)
+               .catch(error => {
+                  console.log(error);
+                  return {status: 0};
+               })
             }
-
-            const fileContent = await s3_manager_driver.getObject(getObjectConfig).promise();
-
-            if(fileContent.Body){
-               const data = fileContent.Body 
-               await fileManager.writeFile(destinationPath, data);
+            else{
+               const getObjectConfig = {
+                  Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
+                  Key: file.Key
+               }
+   
+               const fileContent = await s3_manager_driver.getObject(getObjectConfig).promise();
+               
+               if(fileContent.Body){
+                  const data = fileContent.Body 
+                  await fileManager.writeFile(destinationPath, data)
+                  .catch(error => {
+                     console.log(error);
+                     return {status: 0};
+                  });
+               }
             }
 
          }));
@@ -92,7 +107,7 @@ class S3BucketManager {
 
        try{
          await s3_manager_driver.putObject(params).promise();
-         return {status: 1, path: `${pathToDir}/${dirName}`};
+         return {status: 1, path: `${path}/${dirName}`};
        }
        catch(err){
           console.error('Error creating folder to S3 bucket:', err);
@@ -110,7 +125,7 @@ class S3BucketManager {
 
       try{
          await s3_manager_driver.putObject(params).promise();
-         return {status: 1, path: `${pathToFile}/${fileName}`};
+         return {status: 1, path: `${path}/${fileName}`};
       }
       catch(err){
          console.error('Error creating file to S3 bucket:', err);

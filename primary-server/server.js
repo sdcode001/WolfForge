@@ -12,6 +12,8 @@ const APP_SERVER_PORT = process.env.APP_SERVER_PORT;
 
 app.use(cors());
 
+app.use(express.json());
+
 initHttp(app);
 
 server.listen(APP_SERVER_PORT, () => {

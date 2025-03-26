@@ -19,6 +19,8 @@ const PTY_SERVER_PORT = process.env.PTY_SERVER_PORT;
 
 app.use(cors());
 
+app.use(express.json());
+
 initHttp(app);
 
 initWebsocket(server)

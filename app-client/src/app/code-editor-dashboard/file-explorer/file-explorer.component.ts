@@ -1,10 +1,12 @@
-import { Component, ElementRef, HostListener, Input, OnInit, signal} from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, signal} from '@angular/core';
 import { FileDetails, FileNode } from './file-explorer.model';
 import { ProjectMetaData } from '../../app.model';
 import { SocketServerService } from '../socket.service';
 import { getFileIcon } from './file-explorer.util';
 import { FileTransferService } from '../file-transfer.service';
 import { FormsModule } from '@angular/forms';
+import { FileExplorerService } from './file-explorer.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-file-explorer',
@@ -16,6 +18,7 @@ import { FormsModule } from '@angular/forms';
 export class FileExplorerComponent implements OnInit{
   @Input({required: true}) dataSource!: FileNode 
   @Input({required: true}) projectData!: ProjectMetaData
+  @Output() remove = new EventEmitter<FileNode>();
 
   isExpanded = signal(false);
   fileContent = ''
@@ -24,12 +27,17 @@ export class FileExplorerComponent implements OnInit{
   showNewFolderOrFileInput = false;  
   newFolderOrFileName = '';
   newResourceType = '';
+  private readonly destroy$ = new Subject();
 
-  constructor(private socketServerService: SocketServerService, private fileTransferService: FileTransferService, private elRef: ElementRef){}
+
+  constructor(private socketServerService: SocketServerService, 
+              private fileTransferService: FileTransferService, 
+              private elRef: ElementRef,
+              private fileExplorerService: FileExplorerService
+            ){}
 
 
   ngOnInit(){
-    console.log(this.dataSource.path)
     //If root node then expand it
     if(this.dataSource?.name==this.projectData.projectName){
       this.isExpanded.update(prev => !prev);
@@ -67,14 +75,6 @@ export class FileExplorerComponent implements OnInit{
     }
     
     this.fileTransferService.setSelectedFile(fileDetails);
-    // //load file content
-    // if(this.fileContent == ''){
-    //   this.socketServerService.emit('get-file-content', {username: this.projectData.username, projectId: this.projectData.projectId, path: this.dataSource?.path})
-    // }
-    // else{
-    //   //TODO- send file content to file-editor
-    //   console.log(this.fileContent)
-    // }
   }
 
   createFileNode(data: {type:string, name: string, path:string}[]): FileNode[]{
@@ -115,27 +115,42 @@ export class FileExplorerComponent implements OnInit{
       this.newFolderOrFileName = '';
     }
   
-    saveNewFolderOrFolder() {
+    async saveNewFolderOrFolder() {
       if (!this.newFolderOrFileName.trim() || this.newResourceType == '') {
         this.showNewFolderOrFileInput = false;
         return;
       }
 
-      //TODO- API call
-  
-      const newFolder: FileNode = {
-        type: this.newResourceType,
-        name: this.newFolderOrFileName,
-        path: `${this.dataSource.path}/${this.newFolderOrFileName}`,
-        children: []
-      };
-  
-      this.dataSource.children = this.dataSource.children || [];
-      this.dataSource.children.push(newFolder);
-  
-      this.showNewFolderOrFileInput = false;
-      this.newResourceType = '';
+      this.fileExplorerService.createFileOrFolder(this.projectData.username, this.projectData.projectId, this.dataSource.path, this.newResourceType, this.newFolderOrFileName)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          if(result.status==1){
+            const newFolder: FileNode = {
+              type: this.newResourceType,
+              name: this.newFolderOrFileName,
+              path: result.path,
+              children: []
+            };
+        
+            this.dataSource.children = this.dataSource.children || [];
+            this.dataSource.children.push(newFolder);
+
+            this.showNewFolderOrFileInput = false;
+            this.newResourceType = '';
+          }
+          else{
+            console.log('Unable to create new Folder or File...')
+          }
+        },
+        error: (err) => {
+          console.log(err);
+          this.showNewFolderOrFileInput = false;
+          this.newResourceType = '';
+        }
+      })
     }
+
 
     @HostListener('document:click', ['$event'])
     onClickOutside(event: Event) {
@@ -152,7 +167,22 @@ export class FileExplorerComponent implements OnInit{
     }
 
     async deleteResource(){
+         this.fileExplorerService.deleteFileOrFolder(this.projectData.username, this.projectData.projectId, this.dataSource.path, this.dataSource.type)
+         .pipe(takeUntil(this.destroy$))
+         .subscribe({
+            next: (result) => {
+                if(result.status==1){
+                    this.remove.emit(this.dataSource);
+                }
+            },
+            error: (err) => {
+               console.log(err)
+            }
+         })
+    }
 
+    removeChildNode(node: FileNode) {
+      this.dataSource.children = this.dataSource.children?.filter(v => v.path != node.path);
     }
 
 }

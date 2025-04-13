@@ -1,8 +1,5 @@
-import { Component } from '@angular/core';
-import { HeaderComponent } from "./header/header.component";
-import { DashboardComponent } from "./dashboard/dashboard.component";
-import { ProjectMetaData } from './app.model';
-import { CodeEditorDashboardComponent } from "./code-editor-dashboard/code-editor-dashboard.component";
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 
 
 /* If you dynamically load a child component (e.g., via *ngIf, ngSwitch, or component outlet), Angular 
@@ -12,15 +9,20 @@ destroyed unless explicitly removed or the parent route/component is destroyed. 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [HeaderComponent, DashboardComponent, CodeEditorDashboardComponent],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
-  projectMetaData: ProjectMetaData = {username: 'sdcode001', projectId: 'b54671c8-250b-477f-966d-c73b6a0aef14', projectName: 'Hello', template: 'angular'};
+export class AppComponent implements OnInit {
+   //TODO- create landing page like Replit
+   //if user is already signed in and session is not expired then redirect to dashboard
 
-  onCreateProject(data: ProjectMetaData) {
-    this.projectMetaData = data;
-  }
+   userId = 'sdcode001'
+
+   constructor(private router: Router){ }
+
+   ngOnInit(): void{
+      this.router.navigate(['/dashboard', this.userId])
+   }
 
 }

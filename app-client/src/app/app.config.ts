@@ -1,5 +1,5 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withHashLocation, withRouterConfig } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { routes } from './app.routes';
 import { provideMonacoEditor } from 'ngx-monaco-editor-v2';
@@ -11,7 +11,7 @@ export const appConfig: ApplicationConfig = {
     provideMonacoEditor(),
     importProvidersFrom(HttpClientModule), 
     provideZoneChangeDetection({ eventCoalescing: true }), 
-    provideRouter(routes),
+    provideRouter(routes, withHashLocation(), withComponentInputBinding(), withRouterConfig({paramsInheritanceStrategy: 'always'})),
     provideStore({appState: reducers})
   ]
 };

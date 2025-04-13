@@ -20,17 +20,28 @@ import { CommonModule } from '@angular/common';
   styleUrl: './code-editor-dashboard.component.css'
 })
 export class CodeEditorDashboardComponent implements OnInit {
-  @Input({required: true}) projectData!: ProjectMetaData
+  @Input() userId!: string;
+  @Input() template!: string;
+  @Input() projectId!: string;
+  @Input() projectName!: string;
   ServerSocketId: any
   isFilesLoaded = 0 //0=loading, 1=loaded, 2=failed to load
   fileDataSource!: FileNode
   fileDetails?: FileDetails
   isTerminalOpen: boolean = false;
+  projectData!: ProjectMetaData;
   
 
   constructor(private socketService: SocketServerService, private fileTransferService: FileTransferService, private reduxStore: Store<IAppState>){}
    
   ngOnInit(){
+    this.projectData = {
+      username: this.userId,
+      projectId: this.projectId,
+      projectName: this.projectName,
+      template: this.template
+    }
+    
     this.socketService.connect();
     
     this.socketService.on('connected').subscribe({
@@ -77,12 +88,21 @@ export class CodeEditorDashboardComponent implements OnInit {
       }
     })
     
+    //register window event listener that will trigger before page- reload, close tab, navigate away
+    window.addEventListener('beforeunload', this.beforeUnloadHandler.bind(this));
   }
 
   ngOnDestroy(){
+    //clean up window event listeners- good practice
+    window.removeEventListener('beforeunload', this.beforeUnloadHandler.bind(this));
+
     this.socketService.disconnect();
     this.reduxStore.dispatch(reduxActions.removeAllFilesContent({projectId: this.projectData.projectId}))
     //stop loading spinner 
+  }
+
+  beforeUnloadHandler(event: BeforeUnloadEvent){
+    this.socketService.emit('disconnecting-project', { projectId: this.projectId, username: this.userId });
   }
 
   createRootFileNode(data: {type:string, name: string, path:string}[]): FileNode[]{

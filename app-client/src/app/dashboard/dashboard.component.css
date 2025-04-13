@@ -1,4 +1,52 @@
 
+.main-content {
+  padding: 1rem;
+  background-color: var(--primary-bg-color); 
+  color: var(--text-color); 
+  overflow: auto;
+}
+
+
+.animated-text-container {
+  overflow: hidden; 
+  width: 100%; 
+}
+
+.animated-text {
+  font-size: 30px;
+  font-weight: bold;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-color);
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow:initial;
+  width: 0;
+  animation: typing 3s steps(20) forwards, reset 0s 3s infinite;
+}
+
+@keyframes typing {
+  0% {
+      width: 0;
+  }
+  100% {
+      width: 100%;
+  }
+}
+
+@keyframes reset {
+    0% {
+        width: 0;
+    }
+    99% {
+        width: 100%;
+    }
+    100% {
+        width: 0;
+    }
+}
+
+
 .dashboard-container {
     display: flex;
     border: 2px solid var(--accent-color);

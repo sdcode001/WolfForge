@@ -1,7 +1,7 @@
 const path = require('path');
 const { S3 } = require('aws-sdk');
 const { fileManager } = require('./file-manager-service');
-const { error } = require('console');
+const fs = require('fs');
 require('dotenv').config({path: './.env'});
 
 
@@ -18,6 +18,11 @@ class S3BucketManager {
       const sourcePath = `projects/${username}/${projectId}`;
       //_dirname = absolute path to current directory.
       const localDestination = path.join(__dirname, `workspace/${username}/${projectId}`);
+
+      //check if project already exists or not
+      if(fs.existsSync(localDestination)){
+         return {status: 1};
+      }
 
       try{
          //get list of files from source directory in bucket.

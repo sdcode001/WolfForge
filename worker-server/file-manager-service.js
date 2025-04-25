@@ -46,7 +46,11 @@ class FileManager {
                     reject(err);
                 }
                 else{
-                    resolve(files.map(file => ({type: file.isDirectory() ? 'directory' : 'file', name: file.name, path: `${basePath}/${file.name}`})));
+                    resolve(
+                        files
+                        .filter(file => file.name !== 'backup.conf')
+                        .map(file => ({type: file.isDirectory() ? 'directory' : 'file', name: file.name, path: `${basePath}/${file.name}`}))
+                    );
                 }
             })
         });

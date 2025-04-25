@@ -40,7 +40,7 @@ class S3BucketManager {
          //copy all files to destination directory in parallel using Promise.all()
          await Promise.all(filesList.Contents.map( async (file) => {
             if(!file.Key){ return {status: 0}; }
-
+            
             const destinationPath = file.Key.replace(sourcePath, localDestination);
 
             //for directory

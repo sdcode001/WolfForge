@@ -3,6 +3,7 @@ const { s3Manager }  =  require('./aws-s3-service');
 const { fileManager } = require('./file-manager-service');
 const path = require('path');
 const { fileContentQueue } = require('./bullmq-queue/queues');
+const fs  = require('fs');
 
 //Map- {projectId: List[SocketId]}
 //This dictionary will maintain session of projects and connected users to the projects
@@ -91,25 +92,45 @@ function initWebsocket(server){
            if(projectSessions[projectId]){
              projectSessions[projectId] = projectSessions[projectId].filter(v => v!==socket.id);
 
+             //when all users left the project
              if(projectSessions[projectId].length == 0){
-               //TODO- update all project config files in S3 bucket before clear up project
-               //all users left for this project. So clear up local project
                const projectPath = path.join(__dirname, `workspace/${username}/${projectId}`);
-               fileManager.deleteFileOrDirectory(projectPath).then(async(value) => {
-                  //TODO- notify router server that all users left
-               })
-               .catch(err => {
-                  console.error(err);
-               }) 
+
+               //update all project config files in S3 bucket before clear up project
+               const configFilePath = path.join(projectPath, 'backup.conf');
+               if(fs.existsSync(configFilePath)){
+                  fileManager.getFileContent(configFilePath).then(async (data) => {
+                     const cleanData = data.replace(/\\[nrtf\b\v"'\\]/g, '').trim(); // remove escape sequences
+                     const confFilePaths = cleanData.split(',').map(s => s.trim());
+                     //used async aware for loop because forEach doesn't await async callbacks.
+                     for (const v of confFilePaths) {
+                        const backupFilePath = path.join(projectPath, v);
+                        const content = await fileManager.getFileContent(backupFilePath);
+                        if (content) {
+                          const queueData = {username: username, projectId: projectId, path: v, fileName: v, content: content};
+                          await fileContentQueue.add(v, queueData);
+                        }
+                      }
+                     //all users left for this project. So clear up local project
+                     fileManager.deleteFileOrDirectory(projectPath).then(async(value) => {
+                        //TODO- notify router server that all users left
+                     })
+                     .catch(err => {
+                        console.error(err);
+                     }) 
+                  })
+                  .catch(ex => {
+                     console.log(ex);
+                  })
+               }                 
              }
            }
-           
         });
     
+
         socket.on('disconnect', () => {
           console.log(`Client: ${socket.id} disconnected...`)
-        })
-    
+        })   
     })
 }
 

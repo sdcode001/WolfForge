@@ -15,10 +15,10 @@ yarn-error.log
 /workspace
 
 # env files
-# .env
-# .env.example
-# .env.local
-# .env.staging
+.env
+.env.example
+.env.local
+.env.staging
 
 # IDEs and editors
 .idea/

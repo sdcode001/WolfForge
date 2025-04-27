@@ -2,13 +2,6 @@ const AWS = require('aws-sdk');
 require('dotenv').config({path: './.env'});
 
 
-const GITHUB_USERNAME = 'sdcode001';
-const GITHUB_TOKEN = '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'; 
-const GITHUB_REPO = 'WolfForge-Worker-Server';
-const EC2_SECURITY_GROUP_ID = 'sg-010f01d0a964c969e'; // Should allow 5000 and 5001
-const NODE_APP_START_COMMAND = 'npm start'
-
-
 AWS.config.update({
     accessKeyId: process.env.AWS_USER_ACCESS_KEY,
     secretAccessKey: process.env.AWS_USER_SECRET_ACCESS_KEY,
@@ -26,10 +19,10 @@ class EC2Manager {
                                 curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
                                 apt-get install -y nodejs
                                 cd /home/ubuntu
-                                git clone https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_REPO}.git
-                                cd ${GITHUB_REPO}
+                                git clone https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}.git
+                                cd ${process.env.GITHUB_REPO}
                                 npm install
-                                ${NODE_APP_START_COMMAND}
+                                ${process.env.NODE_APP_START_COMMAND}
                                 `;
       
         const params = {
@@ -37,7 +30,7 @@ class EC2Manager {
           InstanceType: 't2.micro', //CPUs- 1, RAM- 1 GiB, Architecture- x86_64, Storage- EBS only(Elastic Block Storage, no local disk)
           MinCount: 1,
           MaxCount: 1,
-          SecurityGroupIds: [EC2_SECURITY_GROUP_ID],
+          SecurityGroupIds: [process.env.EC2_SECURITY_GROUP_ID],
           UserData: Buffer.from(instanceEnvSetupScript).toString('base64'),
           TagSpecifications: [
             {

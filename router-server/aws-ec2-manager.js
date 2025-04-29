@@ -27,10 +27,10 @@ class EC2Manager {
       
         const params = {
           ImageId: 'ami-006a6296aa17e4546', // Ubuntu 20.04 LTS AMI ID for eu-north-1
-          InstanceType: 't2.micro', //CPUs- 1, RAM- 1 GiB, Architecture- x86_64, Storage- EBS only(Elastic Block Storage, no local disk)
+          InstanceType: 't3.micro', //CPUs- 2, RAM- 1 GiB, Architecture- x86_64, Storage- EBS only(Elastic Block Storage, no local disk)
           MinCount: 1,
           MaxCount: 1,
-          SecurityGroupIds: [process.env.EC2_SECURITY_GROUP_ID],
+          SecurityGroupIds: [process.env.EC2_SECURITY_GROUP_ID], //Should allow 5000 and 5001
           UserData: Buffer.from(instanceEnvSetupScript).toString('base64'),
           TagSpecifications: [
             {

@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
-require('dotenv').config({path: './.env'});
+require('dotenv').config({ path: './.env' });
+const { InstanceEnvSetupScript } = require('./scripts')
 
 
 AWS.config.update({
@@ -12,55 +13,49 @@ const ec2 = new AWS.EC2();
 
 class EC2Manager {
 
-    async launchInstance() {
-        const instanceEnvSetupScript = `#!/bin/bash
-                                apt-get update -y
-                                apt-get install -y curl git
-                                curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-                                apt-get install -y nodejs
-                                cd /home/ubuntu
-                                git clone https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}.git
-                                cd ${process.env.GITHUB_REPO}
-                                npm install
-                                ${process.env.NODE_APP_START_COMMAND}
-                                `;
-      
+    async launchInstances(warmPoolCount) {
+
+        const {
+            EC2_SECURITY_GROUP_ID
+        } = process.env;
+
+
         const params = {
-          ImageId: 'ami-006a6296aa17e4546', // Ubuntu 20.04 LTS AMI ID for eu-north-1
-          InstanceType: 't3.micro', //CPUs- 2, RAM- 1 GiB, Architecture- x86_64, Storage- EBS only(Elastic Block Storage, no local disk)
-          MinCount: 1,
-          MaxCount: 1,
-          SecurityGroupIds: [process.env.EC2_SECURITY_GROUP_ID], //Should allow 5000 and 5001
-          UserData: Buffer.from(instanceEnvSetupScript).toString('base64'),
-          TagSpecifications: [
-            {
-              ResourceType: 'instance',
-              Tags: [
-                { Key: 'Name', Value: 'WolfForgeWorkerServer' }
-              ]
-            }
-          ]
+            ImageId: 'ami-006a6296aa17e4546', // Ubuntu 20.04 in eu-north-1
+            InstanceType: 't3.micro',
+            MinCount: 1,
+            MaxCount: warmPoolCount,
+            KeyName: 'wolfforge-worker-key',
+            SecurityGroupIds: [EC2_SECURITY_GROUP_ID],
+            UserData: Buffer.from(InstanceEnvSetupScript).toString('base64'),
+            TagSpecifications: [
+                {
+                    ResourceType: 'instance',
+                    Tags: [
+                        { Key: 'Name', Value: 'WolfForgeWorkerServerGroup' }
+                    ]
+                }
+            ]
         };
-      
+ 
         const data = await ec2.runInstances(params).promise();
-        const instanceId = data.Instances[0].InstanceId;
-        console.log('Launched instance:', instanceId);
-      
-        await ec2.waitFor('instanceRunning', { InstanceIds: [instanceId] }).promise();
-      
-        const desc = await ec2.describeInstances({ InstanceIds: [instanceId] }).promise();
-        const publicIp = desc.Reservations[0].Instances[0].PublicIpAddress;
-        console.log('Public IP:', publicIp);
-      
-        return { instanceId, publicIp };
+        const instanceIds = data.Instances.map(v => v.InstanceId);
+
+        await ec2.waitFor('instanceRunning', { InstanceIds: instanceIds }).promise();
+
+        const desc = await ec2.describeInstances({ InstanceIds: instanceIds }).promise();
+        const publicIps = desc.Reservations[0].Instances.map(v => v.PublicIpAddress);
+
+        return { instanceIds, publicIps };
     }
 
-    async terminateInstance(instanceId) {
+
+    async terminateInstance(instanceIds) {
         const params = {
-          InstanceIds: [instanceId]
+            InstanceIds: instanceIds
         };
         await ec2.terminateInstances(params).promise();
-        console.log('Terminated instance:', instanceId);
+        console.log('Terminated instance:', instanceIds);
     }
 
 }

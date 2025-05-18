@@ -13,18 +13,17 @@ const ec2 = new AWS.EC2();
 
 class EC2Manager {
 
-    async launchInstances(warmPoolCount) {
+    async launchInstances(requestedInstanceNumber) {
 
         const {
             EC2_SECURITY_GROUP_ID
         } = process.env;
 
-
         const params = {
             ImageId: 'ami-006a6296aa17e4546', // Ubuntu 20.04 in eu-north-1
             InstanceType: 't3.micro',
             MinCount: 1,
-            MaxCount: warmPoolCount,
+            MaxCount: requestedInstanceNumber,
             KeyName: 'wolfforge-worker-key',
             SecurityGroupIds: [EC2_SECURITY_GROUP_ID],
             UserData: Buffer.from(InstanceEnvSetupScript).toString('base64'),
@@ -44,9 +43,9 @@ class EC2Manager {
         await ec2.waitFor('instanceRunning', { InstanceIds: instanceIds }).promise();
 
         const desc = await ec2.describeInstances({ InstanceIds: instanceIds }).promise();
-        const publicIps = desc.Reservations[0].Instances.map(v => v.PublicIpAddress);
+        const result = desc.Reservations[0].Instances.map(v => { return {PublicIpAddress:v.PublicIpAddress, InstanceId:v.InstanceId} });
 
-        return { instanceIds, publicIps };
+        return result;
     }
 
 

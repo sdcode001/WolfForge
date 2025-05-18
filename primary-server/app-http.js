@@ -1,5 +1,7 @@
 const {v4 : uuidv4} = require('uuid')
 const { s3Manager }  =  require('./aws-s3-service');
+const axios = require('axios')
+require('dotenv').config({path: './.env'})
 
 
 function initHttp(app){
@@ -20,7 +22,31 @@ function initHttp(app){
             return res.status(404).json({status: 0, projectId: null, message: 'missing parameters!'});
         } 
     })
+
+    
+    //example GET- http://localhost:3000/request-worker-instance?projectId=djwwe23323nbwnwd
+    //Response- {status, instance_ip, instance_id, message}
+    app.get('/request-worker-instance', async(req, res) => {
+       const projectId = req.query.projectId;
+
+       //request to router server
+       try{
+         const API_URL = process.env.ROUTER_SERVER + '/request-worker-instance';
+         const response = await axios.get(API_URL, {
+            params: {
+                projectId: projectId
+            }
+         })
+
+         return res.status(200).json(response.data);
+       }
+       catch(err){
+         console.log(err.response.data)
+         return res.status(500).json(err.response.data);
+       }
+    })
 }
+
 
 module.exports = {
     initHttp

@@ -34,12 +34,15 @@
           </label>
         </div>
         <button class="create-button" (click)="onCreateProject()" [disabled]="isCreating">
-          @if(!isCreating){
+          @if(!isCreating && !isLaunching){
             <span>+ Create</span>
           }
-          @else {
+          @if(isCreating) {
             <span class="spinner"></span><span> Creating...</span>
           }
+          @if(isLaunching){
+            <span class="spinner"></span><span> Launching...</span>
+          }          
         </button>
       </div>
     </main>

@@ -10,6 +10,7 @@ import { IAppState } from '../../redux-store/IAppState';
 import * as reduxActions from '../../redux-store/actions'
 import { TerminalComponent } from "./terminal/terminal.component";
 import { CommonModule } from '@angular/common';
+import { EncryptionService } from '../../utils/encrypt-decrypt-util';
 
 
 @Component({
@@ -32,9 +33,14 @@ export class CodeEditorDashboardComponent implements OnInit {
   projectData!: ProjectMetaData;
   
 
-  constructor(private socketService: SocketServerService, private fileTransferService: FileTransferService, private reduxStore: Store<IAppState>){}
+  constructor(
+    private socketService: SocketServerService, 
+    private fileTransferService: FileTransferService, 
+    private reduxStore: Store<IAppState>,
+    private encryptionService: EncryptionService
+  ){}
    
-  ngOnInit(){
+  async ngOnInit(){
     this.projectData = {
       username: this.userId,
       projectId: this.projectId,
@@ -42,7 +48,10 @@ export class CodeEditorDashboardComponent implements OnInit {
       template: this.template
     }
     
-    this.socketService.connect();
+    //get encrypted instance_ip from localStorage and decrypt it.
+    const instance_ip = await this.encryptionService.decrypt(localStorage.getItem('instance_ip')!);
+    
+    this.socketService.connect(instance_ip);
     
     this.socketService.on('connected').subscribe({
       next: async (data) => {

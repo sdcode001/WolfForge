@@ -29,6 +29,9 @@ function initHttp(app){
     app.get('/request-worker-instance', async(req, res) => {
        const projectId = req.query.projectId;
 
+       //TODO- remove this after router server fixed
+       return res.status(200).json({status: 1, instance_ip: '192.168.60.106', instance_id: 'ec2-343ncxbnxnccx', message: 'Successfully get a worker instance.'});
+
        //request to router server
        try{
          const API_URL = process.env.ROUTER_SERVER + '/request-worker-instance';

@@ -24,4 +24,28 @@
   a:hover {
     text-decoration: underline;
   }
+
+
+.snackbar-success {
+  background-color: #4caf50; 
+  color: white;
+  border-radius: 8px; 
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.snackbar-error {
+  background-color: #f44336; 
+  color: white;
+  border-radius: 8px; 
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.mat-mdc-snack-bar-action {
+  color: white !important;
+}
+
+.mat-mdc-snack-bar-action:hover {
+  opacity: 0.8;
+}
+
   

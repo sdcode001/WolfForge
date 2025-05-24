@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { EncryptionService } from '../utils/encrypt-decrypt-util';
 
 
 /* If you dynamically load a child component (e.g., via *ngIf, ngSwitch, or component outlet), Angular 
@@ -19,9 +20,10 @@ export class AppComponent implements OnInit {
 
    userId = 'sdcode001'
 
-   constructor(private router: Router){ }
+   constructor(private router: Router, private encryptionService: EncryptionService){ }
 
-   ngOnInit(): void{
+   async ngOnInit() {
+      this.encryptionService.generateKey();
       this.router.navigate(['/dashboard', this.userId])
    }
 

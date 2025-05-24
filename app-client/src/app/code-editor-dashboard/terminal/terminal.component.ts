@@ -3,6 +3,7 @@ import { TerminalSocketService } from './terminal.socket.service';
 import { ProjectMetaData } from '../../app.model';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
+import { EncryptionService } from '../../../utils/encrypt-decrypt-util';
 
 @Component({
   selector: 'app-terminal',
@@ -21,10 +22,16 @@ export class TerminalComponent implements OnInit, OnDestroy, AfterViewInit {
 
    @ViewChild('terminalContainer', { static: true }) terminalContainer!: ElementRef;
 
-   constructor(private terminalSocketService: TerminalSocketService) { }
+   constructor(
+    private terminalSocketService: TerminalSocketService,
+    private encryptionService: EncryptionService
+   ) { }
 
-   ngOnInit(){
-     this.terminalSocketService.connect();
+   async ngOnInit(){
+     //get encrypted instance_ip from localStorage and decrypt it.
+     const instance_ip = await this.encryptionService.decrypt(localStorage.getItem('instance_ip')!);
+     
+     this.terminalSocketService.connect(instance_ip);
 
      this.terminalSocketService.on('terminal-connected').subscribe({
       next: (data) => {

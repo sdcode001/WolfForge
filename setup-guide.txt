@@ -1,4 +1,4 @@
-1. cd app-client, npm i --force
+1. cd app-client, npm i --save --force
 2. cd primary-server, npm i --force
 3. cd worker-server, npm i --force
 4. cd sync-service, npm i --force

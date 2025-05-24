@@ -5,11 +5,12 @@ import { Injectable } from '@angular/core';
 
 @Injectable({providedIn: 'root'})
 export class TerminalSocketService {
-  private SOCKET_SERVER_URL = 'http://localhost:5001';
+  private TERMINAL_SOCKET_SERVER_URL = '5001';
   private socket!: Socket
   
-  connect(){
-    this.socket = io(this.SOCKET_SERVER_URL);
+  connect(instance_ip: string){
+    const instance_url = `http://${instance_ip}:${this.TERMINAL_SOCKET_SERVER_URL}`;
+    this.socket = io(instance_url);
   }
   
   emit(event: string, data: any){

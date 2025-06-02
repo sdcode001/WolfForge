@@ -93,7 +93,7 @@ export class DashboardComponent implements OnInit{
               error: (err) => {
                 console.log(err.error)
                 this.isLaunching = false;
-                this.snackBar.open('Something went wrong!', 'Close', {
+                this.snackBar.open(err.error.message, 'Close', {
                   duration: 3000,
                   panelClass: ['snackbar-error'],
                   verticalPosition: 'top',
@@ -115,7 +115,7 @@ export class DashboardComponent implements OnInit{
         },
         error: (err) => {
           console.log(err.error)
-          this.snackBar.open('Something went wrong!', 'Close', {
+          this.snackBar.open(err.error.message, 'Close', {
             duration: 3000,
             panelClass: ['snackbar-error'],
             verticalPosition: 'top',

@@ -58,14 +58,24 @@ class Orchestrator {
    }
 
 
+   async launchInitialInstances(){
+      const credentials = await ec2Manager.launchInstances(process.env.WARM_POOL_COUNT);
+      credentials.forEach(v => {
+       this.addNewInstance(v.PublicIpAddress, v.InstanceId);
+      })
+      return credentials;
+   }
+
+
    addNewInstance(ip, id){
       const newInstance = new InstanceState(id, '', 0, 0);
       store.dispatch(addInstance(ip, newInstance));
    }
 
 
-   removeInstance(ip){
-      store.dispatch(removeInstance(ip));
+   async terminateInstances(instanceIds){
+      //TODO- terminate instance using instanceIds
+      //TODO- remove key-value pair from redux store
    }
 
 }

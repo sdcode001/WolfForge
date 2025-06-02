@@ -20,7 +20,7 @@ class EC2Manager {
         } = process.env;
 
         const params = {
-            ImageId: process.env.EC2_INSTANCE_IMAGE_ID, 
+            ImageId: process.env.EC2_INSTANCE_IMAGE_ID, //region specific
             InstanceType: process.env.EC2_INSTANCE_TYPE,
             MinCount: 1,
             MaxCount: requestedInstanceNumber,
@@ -40,7 +40,7 @@ class EC2Manager {
         const data = await ec2.runInstances(params).promise();
         const instanceIds = data.Instances.map(v => v.InstanceId);
 
-        await ec2.waitFor('instanceRunning', { InstanceIds: instanceIds }).promise();
+        await ec2.waitFor('instanceStatusOk', { InstanceIds: instanceIds }).promise();  
 
         const desc = await ec2.describeInstances({ InstanceIds: instanceIds }).promise();
         const result = desc.Reservations[0].Instances.map(v => { return {PublicIpAddress:v.PublicIpAddress, InstanceId:v.InstanceId} });

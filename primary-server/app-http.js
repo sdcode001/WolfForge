@@ -14,12 +14,12 @@ function initHttp(app){
         if(username && template && id){
             const result = await s3Manager.copyFromS3TemplateToProject(username, template, id);
             if(result.status === 1){
-                return res.status(200).json({status: 1, projectId: id, message: 'project created'});
+                return res.status(200).json({status: 1, projectId: id, message: 'Project created'});
             }
             return res.status(500).json({status: 0, projectId: null, message: 'Error occurred while creating project!'});
         }
         else{
-            return res.status(404).json({status: 0, projectId: null, message: 'missing parameters!'});
+            return res.status(404).json({status: 0, projectId: null, message: 'Missing parameters!'});
         } 
     })
 
@@ -28,9 +28,6 @@ function initHttp(app){
     //Response- {status, instance_ip, instance_id, message}
     app.get('/request-worker-instance', async(req, res) => {
        const projectId = req.query.projectId;
-
-       //TODO- remove this after router server fixed
-       return res.status(200).json({status: 1, instance_ip: '192.168.60.106', instance_id: 'ec2-343ncxbnxnccx', message: 'Successfully get a worker instance.'});
 
        //request to router server
        try{

@@ -8,3 +8,7 @@
 
 S3 setup---->
 1. while putting new template project in S3, always include backup.conf file to specify backup file paths
+
+
+SSH to remote worker instance---->
+ssh -i wolfforge-worker-key.pem ubuntu@<INSTANCE_IP>

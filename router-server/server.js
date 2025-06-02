@@ -9,17 +9,13 @@ const { orchestrator } = require('./orchestrator')
 
 
 async function initEC2Instances() {
-    const credentials = await ec2Manager.launchInstances(process.env.WARM_POOL_COUNT);
+    const credentials = await orchestrator.launchInitialInstances();
     console.log('Started worker instances---> ', credentials);
     
-    credentials.forEach(v => {
-       orchestrator.addNewInstance(v.PublicIpAddress, v.InstanceId);
-    })
-
-    //Shutdown after 2 minutes
-    setTimeout(async () => {
-       await ec2Manager.terminateInstance(credentials.map(v => v.InstanceId));
-    }, 0.01 * 60 * 1000); // 2 minutes
+    // Shutdown after 2 minutes
+    // setTimeout(async () => {
+    //    await ec2Manager.terminateInstance(credentials.map(v => v.InstanceId));
+    // }, 5 * 60 * 1000); // 2 minutes
 }
 
 async function Start(){

@@ -20,8 +20,8 @@ class EC2Manager {
         } = process.env;
 
         const params = {
-            ImageId: 'ami-006a6296aa17e4546', // Ubuntu 20.04 in eu-north-1
-            InstanceType: 't3.micro',
+            ImageId: process.env.EC2_INSTANCE_IMAGE_ID, 
+            InstanceType: process.env.EC2_INSTANCE_TYPE,
             MinCount: 1,
             MaxCount: requestedInstanceNumber,
             KeyName: 'wolfforge-worker-key',

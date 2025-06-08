@@ -11,8 +11,8 @@ function initHttp(app){
         const template = req.query.template;
         const id = uuidv4();
         
-        if(username && template && id){
-            const result = await s3Manager.copyFromS3TemplateToProject(username, template, id);
+        if(template && id){
+            const result = await s3Manager.copyFromS3TemplateToProject(template, id);
             if(result.status === 1){
                 return res.status(200).json({status: 1, projectId: id, message: 'Project created'});
             }

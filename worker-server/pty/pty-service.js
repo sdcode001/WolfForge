@@ -23,7 +23,7 @@ class PTY {
        this.terminal = pty.spawn(this.shell, [], {
         cols: 100,
         name: 'xterm-256color',
-        cwd: path.join(__dirname, `../workspace/${this.username}/${this.projectId}`),
+        cwd: path.join(__dirname, `../workspace/${this.projectId}`),
         env: process.env
        })
 

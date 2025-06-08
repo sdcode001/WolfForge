@@ -12,9 +12,9 @@ const s3_manager_driver = new S3({
 
 class S3BucketManager {
 
-   async copyFromS3TemplateToProject(username, project, id, continuationToken) {
-      const sourcePath = `templates/${project}`;
-      const destinationPath = `projects/${username}/${id}`;
+   async copyFromS3TemplateToProject(projectTemplate, id, continuationToken) {
+      const sourcePath = `templates/${projectTemplate}`;
+      const destinationPath = `projects/${id}`;
 
       try{
          //get list of files from source directory in bucket.
@@ -51,7 +51,7 @@ class S3BucketManager {
          let result = 1;
          if(filesList.IsTruncated){
             listConfig.ContinuationToken = filesList.ContinuationToken;
-            result = await this.copyFromS3TemplateToProject(username, project, id, listConfig.ContinuationToken).status;
+            result = await this.copyFromS3TemplateToProject(projectTemplate, id, listConfig.ContinuationToken).status;
          }   
 
          return {status: result};

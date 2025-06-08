@@ -10,8 +10,8 @@ const s3_manager_driver = new S3({
 })
 
 class S3BucketManager {
-    async fileContentUpdateToS3(username, projectId, filePath, fileContent){
-         const sourcePath = `projects/${username}/${projectId}`;
+    async fileContentUpdateToS3(projectId, filePath, fileContent){
+         const sourcePath = `projects/${projectId}`;
          const params = {
             Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
             Key: `${sourcePath}${filePath}`,

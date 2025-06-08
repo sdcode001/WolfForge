@@ -14,10 +14,10 @@ const s3_manager_driver = new S3({
 
 class S3BucketManager {
    
-   async copyFromS3ProjectsToLocal(username, projectId, continuationToken) {
-      const sourcePath = `projects/${username}/${projectId}`;
+   async copyFromS3ProjectsToLocal(projectId, continuationToken) {
+      const sourcePath = `projects/${projectId}`;
       //_dirname = absolute path to current directory.
-      const localDestination = path.join(__dirname, `workspace/${username}/${projectId}`);
+      const localDestination = path.join(__dirname, `workspace/${projectId}`);
 
       //check if project already exists or not
       if(fs.existsSync(localDestination)){
@@ -77,7 +77,7 @@ class S3BucketManager {
          let result = 1;
          if(filesList.IsTruncated){
             listConfig.ContinuationToken = filesList.ContinuationToken;
-            result = await this.copyFromS3ProjectsToLocal(username, projectId, listConfig.ContinuationToken).status;
+            result = await this.copyFromS3ProjectsToLocal(projectId, listConfig.ContinuationToken).status;
          } 
 
          return {status: result};
@@ -89,11 +89,11 @@ class S3BucketManager {
    }
 
 
-   async createProject(username, project, id, continuationToken) {
+   async createProject(project, id, continuationToken) {
       try{
-         const copyToS3Result = await this.copyFromS3TemplateToProject(username, project, id, continuationToken);
+         const copyToS3Result = await this.copyFromS3TemplateToProject(project, id, continuationToken);
          if(copyToS3Result.status === 0){ return {status: 0}; }
-         const copyToLocalResult = await this.copyFromS3ProjectsToLocal(username, id, continuationToken);
+         const copyToLocalResult = await this.copyFromS3ProjectsToLocal(id, continuationToken);
          return {status: copyToLocalResult.status};
       }
       catch(err){
@@ -102,8 +102,8 @@ class S3BucketManager {
       }
    }
 
-   async createDirectory(username, id, path, dirName){
-      const pathToDir = `projects/${username}/${id}${path}`;
+   async createDirectory(id, path, dirName){
+      const pathToDir = `projects/${id}${path}`;
       const params = {
        Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
        Key: `${pathToDir}/${dirName}/`, 
@@ -120,8 +120,8 @@ class S3BucketManager {
        }
    }
 
-   async createFile(username, id, path, fileName){
-      const pathToFile = `projects/${username}/${id}${path}`;
+   async createFile(id, path, fileName){
+      const pathToFile = `projects/${id}${path}`;
       const params = {
       Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
       Key: `${pathToFile}/${fileName}`, 
@@ -138,8 +138,8 @@ class S3BucketManager {
       }
    }
 
-   async deleteFile(username, id, path){
-      const pathToFile = `projects/${username}/${id}${path}`;
+   async deleteFile(id, path){
+      const pathToFile = `projects/${id}${path}`;
       const params = {
          Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
          Key: pathToFile
@@ -154,8 +154,8 @@ class S3BucketManager {
      }
    }
 
-   async deleteDirectory(username, id, path){
-      const pathToDir = `projects/${username}/${id}${path}/`;
+   async deleteDirectory(id, path){
+      const pathToDir = `projects/${id}${path}/`;
       const listParams = {
          Bucket: process.env.AWS_S3_BUCKET_NAME ?? "",
          Prefix: pathToDir 

@@ -8,7 +8,7 @@ const fileSyncWorker = new Worker(
     async (job) => {
         const {username, projectId, path, fileName, content} = job.data;
         try{
-            await s3Manager.fileContentUpdateToS3(username, projectId, path, content);
+            await s3Manager.fileContentUpdateToS3(projectId, path, content);
         }
         catch(err){
             console.log(err);

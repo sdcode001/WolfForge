@@ -24,9 +24,9 @@ function initWebsocket(server){
         socket.on('createProject',async (data) => {
           //copy project form S3 bucket to local
           try{
-             const result = await s3Manager.copyFromS3ProjectsToLocal(data.username, data.projectId);
+             const result = await s3Manager.copyFromS3ProjectsToLocal(data.projectId);
              if(result.status == 1){
-                const content = await fileManager.getDirectory(path.join(__dirname, `workspace/${data.username}/${data.projectId}`), '');
+                const content = await fileManager.getDirectory(path.join(__dirname, `workspace/${data.projectId}`), '');
                 //set the session
                 if (!projectSessions[data.projectId]) {
                   projectSessions[data.projectId] = [];
@@ -47,7 +47,7 @@ function initWebsocket(server){
     
         socket.on('get-directory', async (data) => {
           try{
-             const dirContent = await fileManager.getDirectory(path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`), data.path);
+             const dirContent = await fileManager.getDirectory(path.join(__dirname, `workspace/${data.projectId}${data.path}`), data.path);
              socket.emit('directory-content', {path: data.path, data: dirContent});
           }
           catch(err){
@@ -58,7 +58,7 @@ function initWebsocket(server){
     
         socket.on('get-file-content', async(data) => {
            try{
-              const fileContent = await fileManager.getFileContent(path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`));
+              const fileContent = await fileManager.getFileContent(path.join(__dirname, `workspace/${data.projectId}${data.path}`));
               socket.emit('file-content', {path: data.path, data: fileContent});
            }
            catch(err){
@@ -71,7 +71,7 @@ function initWebsocket(server){
         socket.on('update-file-content', async(data) => {
            //update local file content
            try{
-              fileManager.updateFileContent(path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`), data.content)
+              fileManager.updateFileContent(path.join(__dirname, `workspace/${data.projectId}${data.path}`), data.content)
               .then(async (data1) => { 
                 await fileContentQueue.add(data.fileName, data);
                 socket.emit('file-update-result', {status: 1});
@@ -94,13 +94,13 @@ function initWebsocket(server){
 
              //when all users left the project
              if(projectSessions[projectId].length == 0){
-               const projectPath = path.join(__dirname, `workspace/${username}/${projectId}`);
+               const projectPath = path.join(__dirname, `workspace/${projectId}`);
 
                //update all project config files in S3 bucket before clear up project
                const configFilePath = path.join(projectPath, 'backup.conf');
                if(fs.existsSync(configFilePath)){
                   fileManager.getFileContent(configFilePath).then(async (data) => {
-                     const cleanData = data.replace(/\\[nrtf\b\v"'\\]/g, '').trim(); // remove escape sequences
+                     const cleanData = data.replace(/\\[nrtf\b\v"'\\]/g, '').trim(); //remove escape sequences
                      const confFilePaths = cleanData.split(',').map(s => s.trim());
                      //used async aware for loop because forEach doesn't await async callbacks.
                      for (const v of confFilePaths) {

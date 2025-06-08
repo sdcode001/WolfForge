@@ -12,10 +12,10 @@ function initHttp(app){
     app.post('/create-file-folder', async(req, res) => {
         //req.body: {username:string, projectId:string, path:string, type:string, name:string}
         const data = req.body;
-        const localDestination = path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}/${data.name}`);
+        const localDestination = path.join(__dirname, `workspace/${data.projectId}${data.path}/${data.name}`);
           if(data.type=='directory'){
                 fileManager.createDirectoryOrFile(localDestination, false).then(async (value)=> {
-                    const result = await s3Manager.createDirectory(data.username, data.projectId, data.path, data.name);
+                    const result = await s3Manager.createDirectory(data.projectId, data.path, data.name);
                     if(result.status==0){return res.status(500).json(result);}
                     return res.status(200).json(result);
                 })
@@ -26,7 +26,7 @@ function initHttp(app){
           }
           else{
                 fileManager.writeFile(localDestination, '').then(async (value) => {
-                    const result = await s3Manager.createFile(data.username, data.projectId, data.path, data.name);
+                    const result = await s3Manager.createFile(data.projectId, data.path, data.name);
                     if(result.status==0){return res.status(500).json(result);}
                     return res.status(200).json(result);
                 })
@@ -41,15 +41,15 @@ function initHttp(app){
     app.delete('/delete-file-folder', async(req, res) => {
         //req.body: {username:string, projectId:string, path:string, type:string}
         const data = req.body;
-        const localDestination = path.join(__dirname, `workspace/${data.username}/${data.projectId}${data.path}`);
+        const localDestination = path.join(__dirname, `workspace/${data.projectId}${data.path}`);
         fileManager.deleteFileOrDirectory(localDestination).then(async (value) => {
             if(data.type == 'directory'){
-               const result = await s3Manager.deleteDirectory(data.username, data.projectId, data.path);
+               const result = await s3Manager.deleteDirectory(data.projectId, data.path);
                if(result.status==0){return res.status(500).json(result);}
                return res.status(200).json(result);
             }
             else{
-                const result = await s3Manager.deleteFile(data.username, data.projectId, data.path);
+                const result = await s3Manager.deleteFile(data.projectId, data.path);
                 if(result.status==0){return res.status(500).json(result);}
                 return res.status(200).json(result);
             }

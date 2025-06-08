@@ -111,9 +111,9 @@ function initWebsocket(server){
                           await fileContentQueue.add(v, queueData);
                         }
                       }
-                     //all users left for this project. So clear up local project
+                     //all users left for this project. So clear up local project and notify router server
                      fileManager.deleteFileOrDirectory(projectPath).then(async(value) => {
-                        //TODO- notify router server that all users left
+                        //TODO- notify router server with projectId to terminate instance.
                      })
                      .catch(err => {
                         console.error(err);

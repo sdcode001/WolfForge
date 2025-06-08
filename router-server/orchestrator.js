@@ -75,8 +75,7 @@ class Orchestrator {
    //Terminate instance when get notification from worker server or instance turn off accidentally or done from aws console.
    async terminateInstances(instanceIds){
       //TODO- terminate a instance(wait for few mins) if number of active instances > WARM_POOL_COUNT, else make it idle
-      //TODO- terminate instance using instanceIds
-      //TODO- remove key-value pair from redux store
+      //TODO- terminate instance using instanceIds and remove key-value pair from redux store
    }
 
 }

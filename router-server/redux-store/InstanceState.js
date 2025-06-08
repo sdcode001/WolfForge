@@ -2,6 +2,7 @@ class InstanceState {
     instance_id;
     project_id;
     status; //0 = Idel, 1 = Busy
+    worker_socket_id;
     user_count;
 
     constructor(instance_id, project_id, status, user_count){

@@ -2,7 +2,8 @@ const {
     ADD_INSTANCE,
     REMOVE_INSTANCE,
     UPDATE_INSTANCE_STATUS,
-    UPDATE_INSTANCE_PROJECT_ID
+    UPDATE_INSTANCE_PROJECT_ID,
+    UPDATE_INSTANCE_SOCKET_ID
 } = require('./Actions')
 
 
@@ -37,6 +38,15 @@ function instanceReducer(state = initialState, action){
                 [action.payload.ip]: {
                     ...state[action.payload.ip],
                     project_id: action.payload.newProjectId
+                }
+            }
+        }
+        case UPDATE_INSTANCE_SOCKET_ID: {
+            return {
+                ...state,
+                [action.payload.ip]: {
+                    ...state[action.payload.ip],
+                    worker_socket_id: action.payload.socketId
                 }
             }
         }

@@ -49,7 +49,7 @@ class EC2Manager {
     }
 
 
-    async terminateInstance(instanceIds) {
+    async terminateInstances(instanceIds) {
         const params = {
             InstanceIds: instanceIds
         };

@@ -1,15 +1,18 @@
 const {Socket, Server} = require('socket.io');
 const { s3Manager }  =  require('./aws-s3-service');
 const { fileManager } = require('./file-manager-service');
+const { externalSocketClient } = require('./external-socket-client')
 const path = require('path');
 const { fileContentQueue } = require('./bullmq-queue/queues');
 const fs  = require('fs');
+
 
 //Map- {projectId: List[SocketId]}
 //This dictionary will maintain session of projects and connected users to the projects
 const projectSessions = {}
 
 function initWebsocket(server){
+
     const io = new Server(server, {
         cors: {
            origin: "*",
@@ -113,7 +116,11 @@ function initWebsocket(server){
                       }
                      //all users left for this project. So clear up local project and notify router server
                      fileManager.deleteFileOrDirectory(projectPath).then(async(value) => {
-                        //TODO- notify router server with projectId to terminate instance.
+                        //notify router server with projectId to terminate instance.
+                        const projectId = fileManager.getProjectId();
+                        if(projectId){
+                           externalSocketClient.emitRouterServerClient('terminate-instance', {projectId: projectId});
+                        }
                      })
                      .catch(err => {
                         console.error(err);

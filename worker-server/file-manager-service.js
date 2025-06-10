@@ -92,7 +92,17 @@ class FileManager {
             })
         })
     }
-
+    
+    getProjectId(){
+        const rootDir = path.join(__dirname, 'workspace');
+        try {
+            const items = fs.readdirSync(rootDir, { withFileTypes: true });
+            const subDir = items.find(item => item.isDirectory());
+            return subDir ? subDir.name : null;
+        } catch (err) {
+            return null;
+        }
+    }
     
 }
 

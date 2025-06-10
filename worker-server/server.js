@@ -4,6 +4,7 @@ const cors = require('cors')
 const { initHttp } = require('./app-http')
 const { initWebsocket } = require('./app-socket')
 const { initPTYWebsocket } = require('./pty/terminal-socket')
+const { externalSocketClient} = require('./external-socket-client')
 require('dotenv').config({path: './.env'})
 
 
@@ -26,6 +27,8 @@ initHttp(app);
 initWebsocket(server)
 
 initPTYWebsocket(terminal_server)
+
+externalSocketClient.initRouterServerClient();
 
 server.listen(APP_SERVER_PORT, '0.0.0.0', () => {
     console.log('Worker Server listening to PORT:',APP_SERVER_PORT);

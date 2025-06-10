@@ -72,12 +72,21 @@ class Orchestrator {
       store.dispatch(addInstance(ip, newInstance));
    }
 
-   //Terminate instance when get notification from worker server or instance turn off accidentally or done from aws console.
-   async terminateInstances(instanceIds){
-      //TODO- terminate a instance(wait for few mins) if number of active instances > WARM_POOL_COUNT, else make it idle
-      //TODO- terminate instance using instanceIds and remove key-value pair from redux store
+   //Terminate instance when get notification from worker server.
+   async terminateInstance(instanceId, ip, isDirectly=false){
+      //terminate a instance if number of active instances > WARM_POOL_COUNT else make it idle
+      const currentState = store.getState();
+      const WARM_POOL_COUNT = process.env.WARM_POOL_COUNT;
+      if(isDirectly || getTotalInstancesCount(currentState) > WARM_POOL_COUNT){
+         await ec2Manager.terminateInstances([instanceId]);
+         store.dispatch(removeInstance(ip));
+      }
+      else{
+         store.dispatch(updateInstanceState(ip, 0));
+      }
    }
 
+   
 }
 
 const orchestrator = new Orchestrator();

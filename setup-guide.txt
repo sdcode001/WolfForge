@@ -4,6 +4,7 @@
 4. cd sync-service, npm i --force
 5. install redis locally on port 6379 and start redis-server (BullMQ require redis version > 6)
 6. setup proper environment to run node-pty for app-server
+7. change ROUTER_SERVER_URL in router-server .env
 
 
 S3 setup---->
@@ -16,3 +17,14 @@ S3 template project config---->
 
 SSH to remote worker instance---->
 ssh -i wolfforge-worker-key.pem ubuntu@<INSTANCE_IP>
+
+
+
+-----------------------------------------------------------------------------------------------------------
+DONE
+1. autoscaling router architecture implemented
+
+TODOs
+1. deploy sync-service and get connection url.
+2. uncomment- "await fileContentQueue.add(v, queueData);" in worker-server app-socket.json
+3. implement play button functionality of code editor

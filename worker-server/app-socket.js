@@ -89,16 +89,16 @@ function initWebsocket(server){
               console.error(err)
            }
         });
+    
 
-        socket.on('disconnecting-project', async(data) => {
-           const {projectId, username} = data;
-           if(projectSessions[projectId]){
+        socket.on('disconnect', async() => {
+          console.log(`Client: ${socket.id} disconnected...`)
+          const projectId = fileManager.getProjectId();
+          if(projectSessions[projectId]){
              projectSessions[projectId] = projectSessions[projectId].filter(v => v!==socket.id);
-
              //when all users left the project
              if(projectSessions[projectId].length == 0){
                const projectPath = path.join(__dirname, `workspace/${projectId}`);
-
                //update all project config files in S3 bucket before clear up project
                const configFilePath = path.join(projectPath, 'backup.conf');
                if(fs.existsSync(configFilePath)){
@@ -110,17 +110,17 @@ function initWebsocket(server){
                         const backupFilePath = path.join(projectPath, v);
                         const content = await fileManager.getFileContent(backupFilePath);
                         if (content) {
-                          const queueData = {username: username, projectId: projectId, path: v, fileName: v, content: content};
-                          await fileContentQueue.add(v, queueData);
+                          const queueData = {username: '', projectId: projectId, path: v, fileName: v, content: content};
+                          //TODO- uncomment this line after sync-service deployment
+                          //await fileContentQueue.add(v, queueData);
                         }
                       }
                      //all users left for this project. So clear up local project and notify router server
                      fileManager.deleteFileOrDirectory(projectPath).then(async(value) => {
                         //notify router server with projectId to terminate instance.
-                        const projectId = fileManager.getProjectId();
-                        if(projectId){
+                        if(value.status==1){
                            externalSocketClient.emitRouterServerClient('terminate-instance', {projectId: projectId});
-                        }
+                        }   
                      })
                      .catch(err => {
                         console.error(err);
@@ -132,14 +132,10 @@ function initWebsocket(server){
                }                 
              }
            }
-        });
-    
-
-        socket.on('disconnect', () => {
-          console.log(`Client: ${socket.id} disconnected...`)
         })   
     })
 }
+
 
 module.exports = {
     initWebsocket

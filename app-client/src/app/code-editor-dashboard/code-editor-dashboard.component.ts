@@ -97,22 +97,14 @@ export class CodeEditorDashboardComponent implements OnInit {
       }
     })
     
-    //register window event listener that will trigger before page- reload, close tab, navigate away
-    window.addEventListener('beforeunload', this.beforeUnloadHandler.bind(this));
   }
 
   ngOnDestroy(){
-    //clean up window event listeners- good practice
-    window.removeEventListener('beforeunload', this.beforeUnloadHandler.bind(this));
-
     this.socketService.disconnect();
     this.reduxStore.dispatch(reduxActions.removeAllFilesContent({projectId: this.projectData.projectId}))
     //stop loading spinner 
   }
 
-  beforeUnloadHandler(event: BeforeUnloadEvent){
-    this.socketService.emit('disconnecting-project', { projectId: this.projectId, username: this.userId });
-  }
 
   createRootFileNode(data: {type:string, name: string, path:string}[]): FileNode[]{
     let result: FileNode[] = []

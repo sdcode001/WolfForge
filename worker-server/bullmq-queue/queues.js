@@ -8,6 +8,10 @@ const fileContentQueue = new Queue('file-content-queue',
     }
 );
 
+fileContentQueue.on('error', (err)=> {
+    console.error('Redis connection error:', err);
+})
+
 module.exports = {
     fileContentQueue
 }

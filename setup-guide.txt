@@ -19,12 +19,17 @@ SSH to remote worker instance---->
 ssh -i wolfforge-worker-key.pem ubuntu@<INSTANCE_IP>
 
 
+SSH to remote sync service instance---->
+ssh -i wolfforge-sync-service-keypair.pem ec2-user@13.235.83.179
+Check redis server status---->
+redis-cli -h 13.235.83.179 -p 6379
+ping
 
------------------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------------------
 DONE
 1. autoscaling router architecture implemented
+2. Sync service deployment
 
 TODOs
-1. deploy sync-service and get connection url.
-2. uncomment- "await fileContentQueue.add(v, queueData);" in worker-server app-socket.json
-3. implement play button functionality of code editor
+1. implement play button functionality of code editor

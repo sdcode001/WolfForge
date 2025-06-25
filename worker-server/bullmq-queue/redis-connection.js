@@ -1,15 +1,11 @@
 const IORedis = require('ioredis');
-require('dotenv').config({path: '../.env'});
-
+require('dotenv').config({ path: '../.env' }); // or use '.env' if in same dir
 
 const redisConfig = {
-    port: process.env.BULLMQ_REDIS_PORT,
-    host: process.env.BULLMQ_REDIS_HOST,
-    maxRetriesPerRequest: null,
-}
+  port: Number(process.env.BULLMQ_REDIS_PORT),
+  host: process.env.BULLMQ_REDIS_HOST,
+  maxRetriesPerRequest: null,
+};
 
-const redisConnection = new IORedis(redisConfig);
 
-module.exports = {
-    redisConnection
-}
+module.exports = { redisConfig };

@@ -111,8 +111,7 @@ function initWebsocket(server){
                         const content = await fileManager.getFileContent(backupFilePath);
                         if (content) {
                           const queueData = {username: '', projectId: projectId, path: v, fileName: v, content: content};
-                          //TODO- uncomment this line after sync-service deployment
-                          //await fileContentQueue.add(v, queueData);
+                          await fileContentQueue.add(v, queueData);
                         }
                       }
                      //all users left for this project. So clear up local project and notify router server

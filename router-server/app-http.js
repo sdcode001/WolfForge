@@ -4,8 +4,8 @@ const { orchestrator } = require('./orchestrator')
 function initHttp(app){
 
   //Test endpoint
-  //example GET- http://localhost:5000
-  app.get('', async(req, res) => {
+  //example GET- http://localhost:5000/test
+  app.get('/test', async(req, res) => {
       return res.status(200).json({message: 'Hi Souvik. I am up....'})
   })
 

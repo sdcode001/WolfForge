@@ -1,0 +1,38 @@
+1. Go to the AWS EC2 Console
+2. Click Launch Instance
+3. Select an Amazon Machine Image (AMI) like Ubuntu 22.04
+4. Choose instance type (e.g., t2.micro for free tier)
+5. Create a key pair to SSH into the server
+6. Configure storage (default is okay)
+7. Configure security group:
+11. Launch the instance
+
+12. Connect to EC2 via SSH(open wsl)
+    chmod 400 your-key-file.pem
+    ssh -i your-key-file.pem ubuntu@<instance-ip>
+
+13. Install Node.js and npm
+    sudo yum update -y
+    curl -sL https://rpm.nodesource.com/setup_18.x | sudo bash -
+    sudo yum install -y nodejs
+    node -v
+    npm -v
+
+14. Install Git and clone repo
+    sudo yum install -y git
+    git clone https://github.com/yourusername/your-node-app.git
+    cd your-node-app
+    npm install
+
+15. Start app with PM2
+    npm install -g pm2
+    pm2 start server.js --name my-app
+    pm2 save
+
+16 Restart app or status check
+   pm2 restart your-app
+   pm2 logs your-app
+   pm2 status
+
+
+

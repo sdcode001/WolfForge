@@ -26,10 +26,17 @@ redis-cli -h 13.235.83.179 -p 6379
 ping
 
 
+SSH to remote router service instance---->
+ssh -i wolfforge-router-server.pem ec2-user@3.109.158.175
+Check status--->
+pm2 status
+
+
 -------------------------------------------------------------------------------------------------------------
 DONE
 1. autoscaling router architecture implemented
-2. Sync service deployment
+2. Sync service deployment(ip: 13.235.83.179)
+3. Router server deployment(ip: 3.109.158.175, port: 5000)
 
 TODOs
 1. implement play button functionality of code editor

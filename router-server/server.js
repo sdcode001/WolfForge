@@ -28,7 +28,7 @@ async function Start(){
 
     initHttp(app);
 
-    server.listen(APP_SERVER_PORT, ()=>{
+    server.listen(APP_SERVER_PORT, '0.0.0.0', ()=>{
         console.log(`Router server listening on PORT: ${APP_SERVER_PORT}`)
     })
 

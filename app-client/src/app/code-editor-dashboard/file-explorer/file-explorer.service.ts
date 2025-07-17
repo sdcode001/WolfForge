@@ -4,11 +4,14 @@ import { Observable } from "rxjs";
 
 @Injectable({providedIn: 'root'})
 export class FileExplorerService {
-     private readonly WORKER_SERVER_API1: string = 'http://localhost:5000/create-file-folder';
-     private readonly WORKER_SERVER_API2: string = 'http://localhost:5000/delete-file-folder';
+     private readonly WORKER_SOCKET_SERVER_PORT = '5000';
+     private WORKER_INSTANCE_IP: string = '';
 
      constructor(private http: HttpClient){ }
 
+     connect(instance_ip: string){
+        this.WORKER_INSTANCE_IP = instance_ip;
+     }
 
      public createFileOrFolder(username: string, projectId: string, path: string, type: string, name: string): 
      Observable<{status: number, path: string}>
@@ -21,7 +24,7 @@ export class FileExplorerService {
             name: name
           }
 
-          return this.http.post<{status: number, path: string}>(this.WORKER_SERVER_API1, body);
+          return this.http.post<{status: number, path: string}>(`http://${this.WORKER_INSTANCE_IP}:${this.WORKER_SOCKET_SERVER_PORT}/create-file-folder`, body);
      }
 
      public deleteFileOrFolder(username: string, projectId: string, path: string, type: string): 
@@ -39,7 +42,7 @@ export class FileExplorerService {
             body: body 
           };
 
-          return this.http.delete<{status: number}>(this.WORKER_SERVER_API2, httpOptions);
+          return this.http.delete<{status: number}>(`http://${this.WORKER_INSTANCE_IP}:${this.WORKER_SOCKET_SERVER_PORT}/delete-file-folder`, httpOptions);
      }
 
 }

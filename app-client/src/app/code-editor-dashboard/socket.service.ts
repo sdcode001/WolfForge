@@ -5,11 +5,11 @@ import { Injectable } from '@angular/core';
 @Injectable({providedIn: 'root'})
 export class SocketServerService {
   //worker server
-  private SOCKET_SERVER_PORT = '5000';
+  private WORKER_SOCKET_SERVER_PORT = '5000';
   private socket!: Socket
   
   connect(instance_ip: string){
-    const instance_url = `http://${instance_ip}:${this.SOCKET_SERVER_PORT}`;
+    const instance_url = `http://${instance_ip}:${this.WORKER_SOCKET_SERVER_PORT}`;
     this.socket = io(instance_url);
   }
   

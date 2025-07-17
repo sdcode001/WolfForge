@@ -7,6 +7,7 @@ import { FileTransferService } from '../file-transfer.service';
 import { FormsModule } from '@angular/forms';
 import { FileExplorerService } from './file-explorer.service';
 import { Subject, takeUntil } from 'rxjs';
+import { EncryptionService } from '../../../utils/encrypt-decrypt-util';
 
 @Component({
   selector: 'app-file-explorer',
@@ -33,11 +34,12 @@ export class FileExplorerComponent implements OnInit{
   constructor(private socketServerService: SocketServerService, 
               private fileTransferService: FileTransferService, 
               private elRef: ElementRef,
-              private fileExplorerService: FileExplorerService
+              private fileExplorerService: FileExplorerService,
+              private encryptionService: EncryptionService
             ){}
 
 
-  ngOnInit(){
+  async ngOnInit(){
     //If root node then expand it
     if(this.dataSource?.name==this.projectData.projectName){
       this.isExpanded.update(prev => !prev);
@@ -56,6 +58,10 @@ export class FileExplorerComponent implements OnInit{
       })
     };
 
+
+    //get encrypted instance_ip from localStorage and decrypt it.
+    const instance_ip = await this.encryptionService.decrypt(localStorage.getItem('instance_ip')!);
+    this.fileExplorerService.connect(instance_ip);
   }
 
   toggleDirectory = () => {

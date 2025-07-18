@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 
 @Injectable({providedIn: 'root'})
 export class FileExplorerService {
-     private readonly WORKER_SOCKET_SERVER_PORT = '5000';
+     private readonly WORKER_SOCKET_SERVER_PORT = 5000;
      private WORKER_INSTANCE_IP: string = '';
 
      constructor(private http: HttpClient){ }
